@@ -17,8 +17,46 @@ server.use(express.static(path.join(__dirname, 'public')));
 server.get('/', function(request, response, next) {
   var templateArgs = {
 	  title: "Title",
+	  loadCss: [
+	  	{filename: "index.css"},
+	  ],
+	  loadJs: [
+	  	{filename: "index.js"},
+	  ],
   };
   response.render('mainPage', templateArgs);
+});
+
+server.get('/login', function(request, response, next) {
+  var templateArgs = {
+	  title: "Title",
+	  login: true,
+	  loadCss: [
+	  	{filename: "index.css"},
+	  	{filename: "login.css"},
+	  ],
+	  loadJs: [
+	  	{filename: "index.js"},
+	  	{filename: "login.js"}
+	  ],
+  };
+  response.render('loginPage', templateArgs);
+});
+
+server.get('/register', function(request, response, next) {
+  var templateArgs = {
+	  title: "Title",
+	  login: false,
+	  loadCss: [
+	  	{filename: "index.css"},
+	  	{filename: "login.css"},
+	  ],
+	  loadJs: [
+	  	{filename: "index.js"},
+	  	{filename: "login.js"}
+	  ],
+  };
+  response.render('loginPage', templateArgs);
 });
 
 server.get('/public/*', function(request, response, next) {
