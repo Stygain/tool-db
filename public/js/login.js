@@ -52,7 +52,7 @@ function submitAction(button) {
 
 	if (button == 'login') {
 		console.log("Making post to login");
-		xhr.open('POST', 'http://localhost:3000/login');
+		xhr.open('POST', '/login');
 		console.log("InputList: " + inputList);
 		for (field = 0; field < 2; field++) {
 			console.log("Thing: " + inputList[field]);
@@ -61,7 +61,7 @@ function submitAction(button) {
 		}
 	} else {
 		console.log("Making post to register");
-		xhr.open('POST', 'http://localhost:3000/register');
+		xhr.open('POST', '/register');
 		for (field = 0; field < inputList.length; field++) {
 			urlEncodedDataPairs[inputList[field].name] = inputList[field].value;
 		}
