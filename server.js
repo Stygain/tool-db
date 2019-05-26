@@ -140,7 +140,10 @@ server.route('/login')
 		console.log("QUERY: " + query);
 		//connection.connect();
 		connection.query(query, function (error, results, fields) {
-			if (error) throw error;
+			if (error) {
+				console.log("ERROR: " + error);
+				return;
+			}
 			console.log('The results: ', results);
 			console.log("PASS?: " + results[0].password);
 			bcrypt.compare(request.body.password, results[0].password, function(err, res) {
@@ -198,7 +201,9 @@ server.route('/register')
 
 			var post  = {email: request.body.username, password: pass_hash};
 			//connection.connect();
-			var query = connection.query('INSERT INTO User SET ?', post, function (error, results, fields) {
+			var query = sql.format('INSERT INTO User SET ?', post);
+			connection.query(query, function (error, results, fields) {
+				console.log('The results: ', results);
 				if (error) throw error;
 				// Neat!
 				connection.end();
