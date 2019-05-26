@@ -1,11 +1,10 @@
-# vim:syntax=html
 {{> header}}
 
 <section class="access">
 	{{#if login}}
-	<div class="login-container">
+		<div class="login-container">
 	{{else}}
-	<div class="login-container bck">
+		<div class="login-container bck">
 	{{/if}}
 		<form action="javascript:;" onsubmit="submitAction('login')" method="post" name="login">
 			<h1>Login</h1>
