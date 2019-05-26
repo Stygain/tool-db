@@ -36,12 +36,36 @@ server.use(session({
 	}
 }));
 
-var connection = sql.createConnection({
-	host: "classmysql.engr.oregonstate.edu",
-	user: "cs340_bartonad",
-	password: "potato",
-	database: "cs340_bartonad",
-});
+//var connection = sql.createConnection({
+//	host: "classmysql.engr.oregonstate.edu",
+//	user: "cs340_bartonad",
+//	password: "potato",
+//	database: "cs340_bartonad",
+//});
+var connection;
+//var connection = sql.createConnection('mysql://cs340_bartonad:potato@classmysql.engr.oregonstate.edu/cs340_bartonad');
+
+function handleDisconnect() {
+	console.log('1. connecting to db:');
+	connection = sql.createConnection('mysql://cs340_bartonad:potato@classmysql.engr.oregonstate.edu/cs340_bartonad');
+
+	connection.connect(function(err) {
+		if (err) {
+			console.log('2. error when connecting to db:', err);
+			setTimeout(handleDisconnect, 1000);
+		}
+	});
+	connection.on('error', function(err) {
+		console.log('3. db error', err);
+		if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+			handleDisconnect();
+		} else {
+			throw err;
+		}
+	});
+}
+
+handleDisconnect();
 
 //connection.connect();
 
