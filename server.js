@@ -36,14 +36,7 @@ server.use(session({
 	}
 }));
 
-//var connection = sql.createConnection({
-//	host: "classmysql.engr.oregonstate.edu",
-//	user: "cs340_bartonad",
-//	password: "potato",
-//	database: "cs340_bartonad",
-//});
 var connection;
-//var connection = sql.createConnection('mysql://cs340_bartonad:potato@classmysql.engr.oregonstate.edu/cs340_bartonad');
 
 function handleDisconnect() {
 	console.log('1. connecting to db:');
@@ -66,8 +59,6 @@ function handleDisconnect() {
 }
 
 handleDisconnect();
-
-//connection.connect();
 
 hbs.registerHelper('ifCond', function (v1, operator, v2, options) {
 	switch (operator) {
@@ -162,7 +153,6 @@ server.post('/login', function(request, response) {
 	// Do some database stuff
 	var query = sql.format('SELECT password FROM User WHERE email = ?', [request.body.username]);
 	console.log("QUERY: " + query);
-	//connection.connect();
 	connection.query(query, function (error, results, fields) {
 		if (error) {
 			console.log("ERROR: " + error);
@@ -179,7 +169,6 @@ server.post('/login', function(request, response) {
 				var toHash = request.body.username + request.body.password;
 				bcrypt.hash(toHash, saltRounds, function(err, hash) {
 					var cookieValue = hash;
-					//connection.end();
 					response.cookie(cookieName, "somerandonstuffs", { maxAge: 900000, httpOnly: true });
 					// TODO fix this, redirecting isnt working
 					//response.redirect('/');
@@ -222,7 +211,6 @@ server.post('/register', function(request, response) {
 		pass_hash = hash;
 
 		var post  = {email: request.body.username, password: pass_hash};
-		//connection.connect();
 		var query = sql.format('INSERT INTO User SET ?', post);
 		connection.query(query, function (error, results, fields) {
 			if (error) {
@@ -231,7 +219,6 @@ server.post('/register', function(request, response) {
 			}
 			console.log('The results: ', results);
 			// Neat!
-			//connection.end();
 			response.write('hi');
 		});
 	});
