@@ -9,7 +9,7 @@
 		<form action="javascript:;" onsubmit="submitAction('login')" method="post" name="login">
 			<h1>Login</h1>
 			<div class="img-container">
-				<img src="/web/assets/images/avatar.png" class="avatar">
+				<img src="/assets/avatar.png" class="avatar">
 			</div>
 
 			<div class="button-container">
@@ -37,7 +37,7 @@
 		<form action="javascript:;" onsubmit="submitAction('register')" method="post" name="register">
 			<h1>Register</h1>
 			<div class="img-container">
-				<img src="/web/assets/images/avatar.png" class="avatar">
+				<img src="/assets/avatar.png" class="avatar">
 			</div>
 
 			<div class="button-container">
@@ -61,9 +61,15 @@
 
 		</form> 
 	</div>
-	<div class="swap-container">
-		<button type="swap" class="swap" id="swap">Register</button>
-	</div>
+	{{#if login}}
+		<div class="swap-container">
+			<button type="swap" class="swap" id="swap">Register</button>
+		</div>
+	{{else}}
+		<div class="swap-container">
+			<button type="swap" class="swap" id="swap">Login</button>
+		</div>
+	{{/if}}
 </section>
 
 {{> footer}}

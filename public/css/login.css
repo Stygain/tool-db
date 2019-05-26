@@ -20,6 +20,7 @@ body {
 	width: 350px;
 	height: 450px;
 	margin: 0px auto 60px auto;
+	margin-top: 80px;
 	padding: 40px 0px;
 	border-radius: 15px;
 	background: #fff;
@@ -85,6 +86,7 @@ body {
 h1 {
 	position: relative;
 	margin: 0 auto;
+	margin-top: 10px;
 	padding: 0;
 	font-size: 30px;
 }
