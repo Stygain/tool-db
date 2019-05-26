@@ -115,105 +115,103 @@ server.get('/', (request, response) => {
 	}
 });
 
-server.route('/login')
-	.get(function(request, response) {
-		var templateArgs = {
-			title: "Title",
-			nav_title: "Tools DB",
-			active: "login",
-			login: true,
-			loadCss: [
-				{filename: "index.css"},
-				{filename: "login.css"},
-			],
-			loadJs: [
-				{filename: "index.js"},
-				{filename: "login.js"}
-			],
-		};
-		response.render('loginPage', templateArgs);
-	})
-	.post(function(request, response) {
-		console.log("Request: " + request.body.username);
+server.get('/login', function(request, response) {
+	var templateArgs = {
+		title: "Title",
+		nav_title: "Tools DB",
+		active: "login",
+		login: true,
+		loadCss: [
+			{filename: "index.css"},
+			{filename: "login.css"},
+		],
+		loadJs: [
+			{filename: "index.js"},
+			{filename: "login.js"}
+		],
+	};
+	response.render('loginPage', templateArgs);
+});
+server.post('/login', function(request, response) {
+	console.log("Username: " + request.body.username);
 
-		// Do some database stuff
-		var query = sql.format('SELECT password FROM User WHERE email = ?', [request.body.username]);
-		console.log("QUERY: " + query);
+	// Do some database stuff
+	var query = sql.format('SELECT password FROM User WHERE email = ?', [request.body.username]);
+	console.log("QUERY: " + query);
+	//connection.connect();
+	connection.query(query, function (error, results, fields) {
+		if (error) {
+			console.log("ERROR: " + error);
+			return;
+		}
+		console.log('The results: ', results);
+		console.log("PASS?: " + results[0].password);
+		bcrypt.compare(request.body.password, results[0].password, function(err, res) {
+			// If they are authorized, set a cookie
+			if (res == true) {
+				console.log("IT IS TRUE");
+				// Now figure out what value to use for the cookie
+				var cookieName = "site_auth";
+				var toHash = request.body.username + request.body.password;
+				bcrypt.hash(toHash, saltRounds, function(err, hash) {
+					var cookieValue = hash;
+					//connection.end();
+					response.cookie(cookieName, "somerandonstuffs", { maxAge: 900000, httpOnly: true });
+					// TODO fix this, redirecting isnt working
+					//response.redirect('/');
+					response.write('hi');
+				});
+			}
+		});
+	});
+});
+
+
+server.get('/register', function(request, response, next) {
+	var templateArgs = {
+		title: "Title",
+		nav_title: "Tools DB",
+		active: "register",
+		login: false,
+		loadCss: [
+			{filename: "index.css"},
+			{filename: "login.css"},
+		],
+		loadJs: [
+			{filename: "index.js"},
+			{filename: "register.js"}
+		],
+	};
+	response.render('loginPage', templateArgs);
+});
+server.post('/register', function(request, response) {
+	console.log("Request username: " + request.body.username);
+	console.log("Request password: " + request.body.password);
+	// Do some database stuff
+
+	var password = request.body.password;
+	var pass_hash;
+
+	bcrypt.hash(password, saltRounds, function(err, hash) {
+		// Store hash in your password DB.
+		console.log("HASH: " + hash);
+		pass_hash = hash;
+
+		var post  = {email: request.body.username, password: pass_hash};
 		//connection.connect();
+		var query = sql.format('INSERT INTO User SET ?', post);
 		connection.query(query, function (error, results, fields) {
 			if (error) {
 				console.log("ERROR: " + error);
 				return;
 			}
 			console.log('The results: ', results);
-			console.log("PASS?: " + results[0].password);
-			bcrypt.compare(request.body.password, results[0].password, function(err, res) {
-				// If they are authorized, set a cookie
-				if (res == true) {
-					console.log("IT IS TRUE");
-					// Now figure out what value to use for the cookie
-					var cookieName = "site_auth";
-					var toHash = request.body.username + request.body.password;
-					bcrypt.hash(toHash, saltRounds, function(err, hash) {
-						var cookieValue = hash;
-						connection.end();
-						response.cookie(cookieName, "somerandonstuffs", { maxAge: 900000, httpOnly: true });
-						// TODO fix this, redirecting isnt working
-						//response.redirect('/');
-						response.write('hi');
-					});
-				}
-			});
+			// Neat!
+			//connection.end();
+			response.write('hi');
 		});
 	});
-
-
-server.route('/register')
-	.get(function(request, response, next) {
-		var templateArgs = {
-			title: "Title",
-			nav_title: "Tools DB",
-			active: "register",
-			login: false,
-			loadCss: [
-				{filename: "index.css"},
-				{filename: "login.css"},
-			],
-			loadJs: [
-				{filename: "index.js"},
-				{filename: "register.js"}
-			],
-		};
-		response.render('loginPage', templateArgs);
-	})
-	.post(function(request, response) {
-		console.log("Request username: " + request.body.username);
-		console.log("Request password: " + request.body.password);
-		// Do some database stuff
-
-		var password = request.body.password;
-		var pass_hash;
-
-		bcrypt.hash(password, saltRounds, function(err, hash) {
-			// Store hash in your password DB.
-			console.log("HASH: " + hash);
-			pass_hash = hash;
-
-			var post  = {email: request.body.username, password: pass_hash};
-			//connection.connect();
-			var query = sql.format('INSERT INTO User SET ?', post);
-			connection.query(query, function (error, results, fields) {
-				if (error) {
-					console.log("ERROR: " + error);
-					return;
-				}
-				console.log('The results: ', results);
-				// Neat!
-				connection.end();
-				response.write('hi');
-			});
-		});
-	});
+});
 
 function serveStaticFiles(request, response) {
 	var filePath = '.' + request.url;
