@@ -157,10 +157,9 @@ server.route('/login')
 						var cookieValue = hash;
 						connection.end();
 						response.cookie(cookieName, "somerandonstuffs", { maxAge: 900000, httpOnly: true });
-						//response.cookie(cookieName, cookieValue, { maxAge: 900000, httpOnly: true });
 						// TODO fix this, redirecting isnt working
-						response.redirect('/');
-						//response.write('hi');
+						//response.redirect('/');
+						response.write('hi');
 					});
 				}
 			});
@@ -203,14 +202,16 @@ server.route('/register')
 			//connection.connect();
 			var query = sql.format('INSERT INTO User SET ?', post);
 			connection.query(query, function (error, results, fields) {
+				if (error) {
+					console.log("ERROR: " + error);
+					return;
+				}
 				console.log('The results: ', results);
-				if (error) throw error;
 				// Neat!
 				connection.end();
+				response.write('hi');
 			});
 		});
-
-		response.write('hi');
 	});
 
 function serveStaticFiles(request, response) {
