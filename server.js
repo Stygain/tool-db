@@ -42,7 +42,7 @@ var connection = sql.createConnection({
 	database: "cs340_bartonad",
 });
 
-connection.connect();
+//connection.connect();
 
 hbs.registerHelper('ifCond', function (v1, operator, v2, options) {
 	switch (operator) {
@@ -138,6 +138,7 @@ server.route('/login')
 		// Do some database stuff
 		var query = sql.format('SELECT password FROM User WHERE email = ?', [request.body.username]);
 		console.log("QUERY: " + query);
+		connection.connect();
 		connection.query(query, function (error, results, fields) {
 			if (error) throw error;
 			console.log('The results: ', results);
@@ -151,6 +152,7 @@ server.route('/login')
 					var toHash = request.body.username + request.body.password;
 					bcrypt.hash(toHash, saltRounds, function(err, hash) {
 						var cookieValue = hash;
+						connection.end();
 						response.cookie(cookieName, "somerandonstuffs", { maxAge: 900000, httpOnly: true });
 						//response.cookie(cookieName, cookieValue, { maxAge: 900000, httpOnly: true });
 						// TODO fix this, redirecting isnt working
@@ -195,9 +197,11 @@ server.route('/register')
 			pass_hash = hash;
 
 			var post  = {email: request.body.username, password: pass_hash};
+			connection.connect();
 			var query = connection.query('INSERT INTO User SET ?', post, function (error, results, fields) {
 				if (error) throw error;
 				// Neat!
+				connection.end();
 			});
 		});
 
