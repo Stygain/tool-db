@@ -1,16 +1,17 @@
-var express = require('express');
-var server = express();
 var fs = require('fs');
 var http = require('http');
 var path = require('path');
-var exphbs = require('express-handlebars');
-var hbs = require('handlebars');
 var util = require('util');
+
+var exphbs = require('express-handlebars');
+var express = require('express');
+var hbs = require('handlebars');
 var sql = require('mysql');
-//var sql = require('mssql');
 var bcrypt = require('bcrypt');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
+
+var server = express();
 
 var port = process.env.PORT || 3000;
 
