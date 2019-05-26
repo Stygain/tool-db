@@ -138,7 +138,7 @@ server.route('/login')
 		// Do some database stuff
 		var query = sql.format('SELECT password FROM User WHERE email = ?', [request.body.username]);
 		console.log("QUERY: " + query);
-		connection.connect();
+		//connection.connect();
 		connection.query(query, function (error, results, fields) {
 			if (error) throw error;
 			console.log('The results: ', results);
@@ -197,7 +197,7 @@ server.route('/register')
 			pass_hash = hash;
 
 			var post  = {email: request.body.username, password: pass_hash};
-			connection.connect();
+			//connection.connect();
 			var query = connection.query('INSERT INTO User SET ?', post, function (error, results, fields) {
 				if (error) throw error;
 				// Neat!
