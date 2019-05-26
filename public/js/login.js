@@ -53,7 +53,10 @@ function submitAction(button) {
 	if (button == 'login') {
 		console.log("Making post to login");
 		xhr.open('POST', 'http://localhost:3000/login');
-		for (field = 0; field < inputList.length - 1; field++) {
+		console.log("InputList: " + inputList);
+		for (field = 0; field < 2; field++) {
+			console.log("Thing: " + inputList[field]);
+			console.log("Value: " + inputList[field].value);
 			urlEncodedDataPairs[inputList[field].name] = inputList[field].value;
 		}
 	} else {

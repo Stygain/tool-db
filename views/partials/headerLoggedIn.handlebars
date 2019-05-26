@@ -13,21 +13,11 @@
       </div>
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
-		  {{#ifCond active '==' "home"}}
-			  <li class="active"><a href="/">Home</a></li>
-		  {{else}}
-			  <li><a href="/">Home</a></li>
-		  {{/ifCond}}
-		  {{#ifCond active '==' "login"}}
-			  <li class="active"><a href="/login">Login</a></li>
-		  {{else}}
-			  <li><a href="/login">Login</a></li>
-		  {{/ifCond}}
-		  {{#ifCond active '==' "register"}}
-			  <li class="active"><a href="/register">Register</a></li>
-		  {{else}}
-			  <li><a href="/register">Register</a></li>
-		  {{/ifCond}}
+          <li class="active"><a href="/">Home</a></li>
+          <li><a href="/buildings">Buildings</a></li>
+          <li><a href="/locations">Locations</a></li>
+          <li><a href="/tools">Tools</a></li>
+          <li><a href="/logout">Logout</a></li>
         </ul>
       </div>
     </div>
