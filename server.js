@@ -130,9 +130,11 @@ function renderTable(request, response) {
 		loadCss: [
 			{filename: "index.css"},
 			{filename: "building.css"},
+			{filename: "modal.css"},
 		],
 		loadJs: [
 			{filename: "index.js"},
+			{filename: "modal.js"},
 		],
 		header: [
 			{title: "title1"},
