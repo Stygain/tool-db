@@ -47,6 +47,7 @@ function handleDisconnect() {
 			console.log('2. error when connecting to db:', err);
 			setTimeout(handleDisconnect, 1000);
 		}
+		console.log("Connected!");
 	});
 	connection.on('error', function(err) {
 		console.log('3. db error', err);
@@ -119,6 +120,32 @@ function renderHome(request, response, log_in_status) {
 		],
 	};
 	response.render('homePage', templateArgs);
+};
+
+function renderTable(request, response) {
+	var templateArgs = {
+		title: "Tools DB",
+		nav_title: "Tools DB",
+		active: "buildings",
+		loadCss: [
+			{filename: "index.css"},
+			{filename: "building.css"},
+		],
+		loadJs: [
+			{filename: "index.js"},
+		],
+		header: [
+			{title: "title1"},
+			{title: "title2"},
+		],
+		item: [
+			{content: 1, second: 2},
+			{content: 2, second: 2},
+			{content: 3, second: 2},
+			{content: 4, second: 2},
+		],
+	};
+	response.render('contentPage', templateArgs);
 };
 
 // 
@@ -222,6 +249,10 @@ server.post('/register', function(request, response) {
 			response.write('hi');
 		});
 	});
+});
+
+server.get('/buildings', function(request, response, next) {
+	renderTable(request, response);
 });
 
 function serveStaticFiles(request, response) {

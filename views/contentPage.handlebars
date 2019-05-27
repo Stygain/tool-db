@@ -1,0 +1,22 @@
+{{#if loggedIn}}
+	{{> headerLoggedIn}}
+{{else}}
+	{{> header}}
+{{/if}}
+
+<div class="content-block">
+	<table class="items-table">
+		<tr>
+			{{#each header}}
+				{{> row_header}}
+			{{/each}}
+		</tr>
+		{{#each item}}
+			{{> row}}
+		{{/each}}
+	</table>
+</div>
+
+{{> fab}}
+
+{{> footer}}
