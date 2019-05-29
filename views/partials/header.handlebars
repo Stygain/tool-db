@@ -13,21 +13,54 @@
       </div>
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
-		  {{#ifCond active '==' "home"}}
-			  <li class="active"><a href="/">Home</a></li>
+		  {{#if loggedIn}}
+			  {{#ifCond active '==' "home"}}
+				  <li class="active"><a href="/">Home</a></li>
+			  {{else}}
+				  <li><a href="/">Home</a></li>
+			  {{/ifCond}}
+			  {{#ifCond active '==' "buildings"}}
+				  <li class="active"><a href="/buildings">Buildings</a></li>
+			  {{else}}
+				  <li><a href="/buildings">Buildings</a></li>
+			  {{/ifCond}}
+			  {{#ifCond active '==' "locations"}}
+				  <li class="active"><a href="/locations">Locations</a></li>
+			  {{else}}
+				  <li><a href="/locations">Locations</a></li>
+			  {{/ifCond}}
+			  {{#ifCond active '==' "tools"}}
+				  <li class="active"><a href="/tools">Tools</a></li>
+			  {{else}}
+				  <li><a href="/tools">Tools</a></li>
+			  {{/ifCond}}
+			  {{#ifCond active '==' "maintainers"}}
+				  <li class="active"><a href="/maintainers">Maintainers</a></li>
+			  {{else}}
+				  <li><a href="/maintainers">Maintainers</a></li>
+			  {{/ifCond}}
+			  {{#ifCond active '==' "logout"}}
+				  <li class="active"><a href="/logout">Logout</a></li>
+			  {{else}}
+				  <li><a href="/logout">Logout</a></li>
+			  {{/ifCond}}
 		  {{else}}
-			  <li><a href="/">Home</a></li>
-		  {{/ifCond}}
-		  {{#ifCond active '==' "login"}}
-			  <li class="active"><a href="/login">Login</a></li>
-		  {{else}}
-			  <li><a href="/login">Login</a></li>
-		  {{/ifCond}}
-		  {{#ifCond active '==' "register"}}
-			  <li class="active"><a href="/register">Register</a></li>
-		  {{else}}
-			  <li><a href="/register">Register</a></li>
-		  {{/ifCond}}
+			  {{#ifCond active '==' "home"}}
+				  <li class="active"><a href="/">Home</a></li>
+			  {{else}}
+				  <li><a href="/">Home</a></li>
+			  {{/ifCond}}
+			  {{#ifCond active '==' "login"}}
+				  <li class="active"><a href="/login">Login</a></li>
+			  {{else}}
+				  <li><a href="/login">Login</a></li>
+			  {{/ifCond}}
+			  {{#ifCond active '==' "register"}}
+				  <li class="active"><a href="/register">Register</a></li>
+			  {{else}}
+				  <li><a href="/register">Register</a></li>
+			  {{/ifCond}}
+		  {{/if}}
         </ul>
       </div>
     </div>

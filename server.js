@@ -89,6 +89,14 @@ hbs.registerHelper('ifCond', function (v1, operator, v2, options) {
 	}
 });
 
+//
+function checkAuth(request) {
+	if (request.cookies.site_auth) {
+		return true;
+	}
+	return false;
+}
+
 // middleware function to check for logged-in users
 var sessionChecker = (req, res, next) => {
 	if (req.cookies.site_auth) {
@@ -98,20 +106,13 @@ var sessionChecker = (req, res, next) => {
 	}    
 };
 
-
-//server.use((req, res, next) => {
-//	if (req.cookies.site_auth) {
-//		res.clearCookie('site_auth');        
-//	}
-//	next();
-//});
-
-function renderHome(request, response, log_in_status) {
+function renderHome(request, response) {
+	var authorization = checkAuth(request);
 	var templateArgs = {
 		title: "Tools DB",
 		nav_title: "Tools DB",
 		active: "home",
-		loggedIn: log_in_status,
+		loggedIn: authorization,
 		loadCss: [
 			{filename: "index.css"},
 			{filename: "home.css"},
@@ -123,44 +124,49 @@ function renderHome(request, response, log_in_status) {
 	response.render('homePage', templateArgs);
 };
 
-function renderTable(request, response) {
-	var templateArgs = {
-		title: "Tools DB",
-		nav_title: "Tools DB",
-		active: "buildings",
-		loadCss: [
-			{filename: "index.css"},
-			{filename: "building.css"},
-			{filename: "modal.css"},
-		],
-		loadJs: [
-			{filename: "index.js"},
-			{filename: "modal.js"},
-		],
-		header: [
-			{title: "title1"},
-			{title: "title2"},
-		],
-		item: [
-			{content: 1, second: 2},
-			{content: 2, second: 2},
-			{content: 3, second: 2},
-			{content: 4, second: 2},
-		],
-	};
-	response.render('contentPage', templateArgs);
+function renderContentPage(page, request, response) {
+	var authorization = checkAuth(request);
+	if (page == "buildings") {
+		var templateArgs = {
+			title: "Tools DB",
+			nav_title: "Tools DB",
+			loggedIn: authorization,
+			active: "buildings",
+			loadCss: [
+				{filename: "index.css"},
+				{filename: "building.css"},
+				{filename: "modal.css"},
+			],
+			loadJs: [
+				{filename: "index.js"},
+				{filename: "modal.js"},
+			],
+			header: [
+				{title: "title1"},
+				{title: "title2"},
+			],
+			item: [
+				{content: 1, second: 2},
+				{content: 2, second: 2},
+				{content: 3, second: 2},
+				{content: 4, second: 2},
+			],
+		};
+		response.render('contentPage', templateArgs);
+	}
 };
 
 // 
 server.get('/', (request, response) => {
-	if (request.cookies.site_auth) {
-		renderHome(request, response, true);
-	} else {
-		renderHome(request, response, false);
-	}
+	renderHome(request, response);
 });
 
 server.get('/login', function(request, response) {
+	var authorization = checkAuth(request);
+	if (authorization) {
+		response.redirect('/');
+		return;
+	}
 	var templateArgs = {
 		title: "Title",
 		nav_title: "Tools DB",
@@ -211,6 +217,11 @@ server.post('/login', function(request, response) {
 
 
 server.get('/register', function(request, response, next) {
+	var authorization = checkAuth(request);
+	if (authorization) {
+		response.redirect('/');
+		return;
+	}
 	var templateArgs = {
 		title: "Title",
 		nav_title: "Tools DB",
@@ -255,7 +266,23 @@ server.post('/register', function(request, response) {
 });
 
 server.get('/buildings', function(request, response, next) {
-	renderTable(request, response);
+	renderContentPage("buildings", request, response);
+});
+
+server.get('/locations', function(request, response, next) {
+	renderContentPage("locations", request, response);
+});
+
+server.get('/tools', function(request, response, next) {
+	renderContentPage("tools", request, response);
+});
+
+server.get('/maintainers', function(request, response, next) {
+	renderContentPage("maintainers", request, response);
+});
+
+server.get('/logout', function(request, response, next) {
+	//renderContentPage("logout", request, response);
 });
 
 function serveStaticFiles(request, response) {
@@ -309,11 +336,6 @@ server.get('/public/*', function(request, response, next) {
 
 server.get('/assets/*', function(request, response, next) {
 	serveStaticFiles(request, response);
-});
-
-server.get('/:page/:index', function(request, response, next) {
-	console.log("page request", request.params.page);
-	console.log("index request", request.params.index);
 });
 
 server.get('*', function(request, response) {
