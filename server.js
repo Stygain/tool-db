@@ -241,8 +241,11 @@ server.post('/login', function(request, response) {
 					var cookieValue = hash;
 					response.cookie(cookieName, "somerandonstuffs", { maxAge: 900000, httpOnly: true });
 					// TODO fix this, redirecting isnt working
-					response.redirect('/');
+					response.status(200).end();
+					//response.redirect('/');
 				});
+			} else {
+			    response.status(401).end();
 			}
 		});
 	});
