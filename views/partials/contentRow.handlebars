@@ -1,0 +1,10 @@
+<div class={{name}}-container>
+	{{#ifCond inputType '==' "text"}}
+		{{#if required}}
+			<input type="{{type}}" placeholder="{{placeholder}}" name="{{name}}" required>
+		{{else}}
+			<input type="{{type}}" placeholder="{{placeholder}}" name="{{name}}">
+		{{/if}}
+	{{else}}
+	{{/ifCond}}
+</div>

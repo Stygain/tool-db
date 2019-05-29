@@ -7,8 +7,11 @@
       <h2>{{modalHeader}}</h2>
     </div>
     <div class="modal-body">
-      <p>Some text in the Modal Body</p>
-      <p>Some other text...</p>
+	  <form action="javascript:;" onsubmit="submitAction('submitFooter{{modalType}}')" method="post" name="submitFooter{{modalType}}">
+		{{#each modalContentRow}}
+			{{> contentRow}}
+		{{/each}}
+	  </form>
     </div>
     <div class="modal-footer">
 		<div class="cancel_b_cont">

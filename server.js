@@ -163,7 +163,28 @@ function renderContentPage(page, request, response) {
 				{content: 3, second: 2},
 				{content: 4, second: 2},
 			],
-			modalHeader: "HEADER",
+			modalHeader: "Add New Building",
+			modalType: "buildings",
+			modalContentRow: [
+				{
+					inputType: "text",
+					placeholder: "Address",
+					name: "address",
+					required: true,
+				},
+				{
+					inputType: "text",
+					placeholder: "Name",
+					name: "name",
+					required: true,
+				},
+				{
+					inputType: "text",
+					placeholder: "Manager",
+					name: "manager",
+					required: true,
+				},
+			],
 		};
 		response.render('contentPage', templateArgs);
 	}
