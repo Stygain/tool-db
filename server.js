@@ -282,7 +282,8 @@ server.get('/maintainers', function(request, response, next) {
 });
 
 server.get('/logout', function(request, response, next) {
-	//renderContentPage("logout", request, response);
+	response.clearCookie('site_auth');
+	response.redirect('/');
 });
 
 function serveStaticFiles(request, response) {
