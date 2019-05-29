@@ -67,14 +67,18 @@ function submitAction(button) {
 		}
 	}
 
-	//xhr.onreadystatechange = logContents;
+	var modal = document.getElementById("status-container");
 	xhr.onreadystatechange = function() {
 	    if (this.status == 200) {
 		document.getElementById("status").innerHTML = "Success!";
 	    } else {
 		document.getElementById("status").innerHTML = "Failed to authenticate user!";
 	    }
+	    modal.style.display = "block";
 	    //register a thing to make it go away in a couple of seconds
+	    setTimeout(function(modal) {
+		modal.style.display = "none";
+	    }, 1500, modal);
 	};
 	xhr.setRequestHeader('Content-Type', 'application/json')
 

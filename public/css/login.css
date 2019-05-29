@@ -185,6 +185,8 @@ h1::after {
     background: blue;
     border-radius: 5px;
     overflow: hidden;
+    display: none;
+    animation: fade 2s linear;
 }
 
 .status-container h4 {
