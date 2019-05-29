@@ -17,6 +17,9 @@ var port = process.env.PORT || 3000;
 
 const saltRounds = 10;
 
+/* ********************
+ * Server config
+******************** */
 server.engine('handlebars', exphbs({defaultLayout: 'main'}));
 server.set('view engine', 'handlebars');
 
@@ -35,6 +38,15 @@ server.use(session({
 		expires: 600000
 	}
 }));
+
+server.listen(port, function() {
+	console.log("Server running on port ", port);
+});
+
+/* ********************
+ * END Server config
+******************** */
+
 
 var connection;
 
@@ -207,8 +219,7 @@ server.post('/login', function(request, response) {
 					var cookieValue = hash;
 					response.cookie(cookieName, "somerandonstuffs", { maxAge: 900000, httpOnly: true });
 					// TODO fix this, redirecting isnt working
-					//response.redirect('/');
-					response.write('hi');
+					response.redirect('/');
 				});
 			}
 		});
@@ -341,8 +352,4 @@ server.get('/assets/*', function(request, response, next) {
 
 server.get('*', function(request, response) {
 	response.render('404Page');
-});
-
-server.listen(port, function() {
-	console.log("Server running on port ", port);
 });
