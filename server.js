@@ -163,6 +163,7 @@ function renderContentPage(page, request, response) {
 				{content: 3, second: 2},
 				{content: 4, second: 2},
 			],
+			modalHeader: "HEADER",
 		};
 		response.render('contentPage', templateArgs);
 	}
