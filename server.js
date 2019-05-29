@@ -40,6 +40,7 @@ var connection;
 
 function handleDisconnect() {
 	console.log('1. connecting to db:');
+	// CONFIG CHANGE USERNAME AND PASSWORD
 	connection = sql.createConnection('mysql://cs340_bartonad:potato@classmysql.engr.oregonstate.edu/cs340_bartonad');
 
 	connection.connect(function(err) {
