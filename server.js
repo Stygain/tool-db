@@ -50,6 +50,9 @@ server.listen(port, function() {
 
 var connection;
 
+/* ********************
+ * Database continual-connection
+******************** */
 function handleDisconnect() {
 	console.log('1. connecting to db:');
 	// CONFIG CHANGE USERNAME AND PASSWORD
@@ -72,8 +75,12 @@ function handleDisconnect() {
 	});
 }
 
+// Star the database connection
 handleDisconnect();
 
+/* ********************
+ * Handlebars conditional helper
+******************** */
 hbs.registerHelper('ifCond', function (v1, operator, v2, options) {
 	switch (operator) {
 		case '==':
@@ -101,7 +108,9 @@ hbs.registerHelper('ifCond', function (v1, operator, v2, options) {
 	}
 });
 
-//
+/* ********************
+ * Check if the user is authenticated
+******************** */
 function checkAuth(request) {
 	if (request.cookies.site_auth) {
 		return true;
@@ -109,7 +118,9 @@ function checkAuth(request) {
 	return false;
 }
 
-// middleware function to check for logged-in users
+/* ********************
+ * Check if the user is authenticated and redirect them elsewhere if not
+******************** */
 var sessionChecker = (req, res, next) => {
 	if (req.cookies.site_auth) {
 		res.redirect('/');
@@ -118,6 +129,9 @@ var sessionChecker = (req, res, next) => {
 	}    
 };
 
+/* ********************
+ * Render the home page
+******************** */
 function renderHome(request, response) {
 	var authorization = checkAuth(request);
 	var templateArgs = {
@@ -136,6 +150,9 @@ function renderHome(request, response) {
 	response.render('homePage', templateArgs);
 };
 
+/* ********************
+ * Render any content page
+******************** */
 function renderContentPage(page, titles, data, request, response) {
 	var authorization = checkAuth(request);
 	if (page == "buildings") {
@@ -183,11 +200,16 @@ function renderContentPage(page, titles, data, request, response) {
 	}
 };
 
-// 
+/* ********************
+ * Handle get requests for /
+******************** */
 server.get('/', (request, response) => {
 	renderHome(request, response);
 });
 
+/* ********************
+ * Handle get requests for /login
+******************** */
 server.get('/login', function(request, response) {
 	var authorization = checkAuth(request);
 	if (authorization) {
@@ -210,6 +232,10 @@ server.get('/login', function(request, response) {
 	};
 	response.render('loginPage', templateArgs);
 });
+
+/* ********************
+ * Handle post requests for /login
+******************** */
 server.post('/login', function(request, response) {
 	console.log("Username: " + request.body.username);
 
@@ -245,6 +271,9 @@ server.post('/login', function(request, response) {
 });
 
 
+/* ********************
+ * Handle get requests for /register
+******************** */
 server.get('/register', function(request, response, next) {
 	var authorization = checkAuth(request);
 	if (authorization) {
@@ -267,6 +296,10 @@ server.get('/register', function(request, response, next) {
 	};
 	response.render('loginPage', templateArgs);
 });
+
+/* ********************
+ * Handle post requests for /register
+******************** */
 server.post('/register', function(request, response) {
 	console.log("Request username: " + request.body.username);
 	console.log("Request password: " + request.body.password);
@@ -294,33 +327,50 @@ server.post('/register', function(request, response) {
 	});
 });
 
+/* ********************
+ * Handle get requests for /buildings
+******************** */
 server.get('/buildings', function(request, response, next) {
 	getBuildingsData(function(titles, buildingsData) {
 		console.log("Titles: " + titles);
 		console.log("Buildings data: " + buildingsData);
 		renderContentPage("buildings", titles, buildingsData, request, response);
 	});
-	//console.log("Buildings data: " + buildingsData);
-	//renderContentPage("buildings", buildingsData, request, response);
 });
 
+/* ********************
+ * Handle get requests for /locations
+******************** */
 server.get('/locations', function(request, response, next) {
 	renderContentPage("locations", request, response);
 });
 
+/* ********************
+ * Handle get requests for /tools
+******************** */
 server.get('/tools', function(request, response, next) {
 	renderContentPage("tools", request, response);
 });
 
+/* ********************
+ * Handle get requests for /maintainers
+******************** */
 server.get('/maintainers', function(request, response, next) {
 	renderContentPage("maintainers", request, response);
 });
 
+/* ********************
+ * Handle get requests for /logout
+******************** */
 server.get('/logout', function(request, response, next) {
+	// Remove the cookie
 	response.clearCookie('site_auth');
 	response.redirect('/');
 });
 
+/* ********************
+ * Serve any sort of file the user requests
+******************** */
 function serveStaticFiles(request, response) {
 	var filePath = '.' + request.url;
 	var extname = ''
@@ -366,22 +416,37 @@ function serveStaticFiles(request, response) {
 	});
 }
 
+/* ********************
+ * Handle get requests for /public/*
+******************** */
 server.get('/public/*', function(request, response, next) {
 	serveStaticFiles(request, response);
 });
 
+/* ********************
+ * Handle get requests for /assets/*
+******************** */
 server.get('/assets/*', function(request, response, next) {
 	serveStaticFiles(request, response);
 });
 
+/* ********************
+ * Handle any other requests with the 404 page
+******************** */
 server.get('*', function(request, response) {
 	response.render('404Page');
 });
 
+/* ********************
+ * Query the DB to get the buildings table data and construct the response JSO for handlebars
+******************** */
 function getBuildingsData(content) {
+	// Generate the select statement
 	var query = sql.format('SELECT * FROM Building WHERE 1');
 	//console.log("QUERY: " + query);
+	// Execute the select statement
 	connection.query(query, function (error, results, fields) {
+		// Pass the error back if present
 		if (error) {
 			console.log("ERROR: " + error);
 			return;
@@ -389,6 +454,7 @@ function getBuildingsData(content) {
 		//console.log('The results: ', results);
 
 		// Convert the results structure into the structure that handlebars uses
+		// Generate an array of titles (headers of the tables)
 		var title_arr = [];
 		for (var key in Object.keys(results[0])) {
 		    var tmp_obj = {title: Object.keys(results[0])[key]};
@@ -396,6 +462,7 @@ function getBuildingsData(content) {
 		}
 		//console.log("Title Array: ", title_arr);
 
+		// Generate the content
 		var content_arr = [];
 		for (var index in results) {
 		    var tmp_arr = [];
@@ -407,7 +474,7 @@ function getBuildingsData(content) {
 		}
 		//console.log("Content Array: ", content_arr);
 
-		// Callback return the data
+		// Callback to return the data
 		content(title_arr, content_arr);
 	});
 }
