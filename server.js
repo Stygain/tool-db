@@ -302,6 +302,7 @@ server.post('/register', function(request, response) {
 });
 
 server.get('/buildings', function(request, response, next) {
+	getBuildingsData();
 	renderContentPage("buildings", request, response);
 });
 
@@ -378,3 +379,41 @@ server.get('/assets/*', function(request, response, next) {
 server.get('*', function(request, response) {
 	response.render('404Page');
 });
+
+function getBuildingsData() {
+	//var query = sql.format('SELECT * FROM Building WHERE 1');
+	var query = sql.format('SELECT * FROM Location WHERE 1');
+	console.log("QUERY: " + query);
+	connection.query(query, function (error, results, fields) {
+		if (error) {
+			console.log("ERROR: " + error);
+			return;
+		}
+		//results = results[0];
+		console.log('The results: ', results);
+
+		// TODO Convert the results structure into the structure that handlebars uses
+		console.log("Keys:? ", Object.keys(results[0]));
+		var title_arr = [];
+		for (var key in Object.keys(results[0])) {
+		    var tmp_obj = {title: Object.keys(results[0])[key]};
+		    title_arr.push(tmp_obj);
+		}
+		console.log("Title Array: ", title_arr);
+
+		var content_arr = [];
+		for (var index in results) {
+		    //var tmp_obj = {};
+		    //console.log("Outer: ", results[index]);
+
+		    var tmp_arr = [];
+		    for (var jndex in results[index]) {
+			//var tmp_sub_obj = {};
+			//console.log("Inner: ", results[index][jndex]);
+			tmp_arr.push(results[index][jndex]);
+		    }
+		    content_arr.push(tmp_arr);
+		}
+		console.log("Content Array: ", content_arr);
+	});
+}
