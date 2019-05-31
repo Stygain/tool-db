@@ -136,7 +136,7 @@ function renderHome(request, response) {
 	response.render('homePage', templateArgs);
 };
 
-function renderContentPage(page, request, response) {
+function renderContentPage(page, titles, data, request, response) {
 	var authorization = checkAuth(request);
 	if (page == "buildings") {
 		var templateArgs = {
@@ -153,16 +153,8 @@ function renderContentPage(page, request, response) {
 				{filename: "index.js"},
 				{filename: "modal.js"},
 			],
-			header: [
-				{title: "title1"},
-				{title: "title2"},
-			],
-			item: [
-				{content: 1, second: 2},
-				{content: 2, second: 2},
-				{content: 3, second: 2},
-				{content: 4, second: 2},
-			],
+			header: titles,
+			item: data,
 			modalHeader: "Add New Building",
 			modalType: "buildings",
 			modalContentRow: [
@@ -186,6 +178,7 @@ function renderContentPage(page, request, response) {
 				},
 			],
 		};
+		console.log("TemplateArgs: " + templateArgs);
 		response.render('contentPage', templateArgs);
 	}
 };
@@ -302,8 +295,13 @@ server.post('/register', function(request, response) {
 });
 
 server.get('/buildings', function(request, response, next) {
-	getBuildingsData();
-	renderContentPage("buildings", request, response);
+	getBuildingsData(function(titles, buildingsData) {
+		console.log("Titles: " + titles);
+		console.log("Buildings data: " + buildingsData);
+		renderContentPage("buildings", titles, buildingsData, request, response);
+	});
+	//console.log("Buildings data: " + buildingsData);
+	//renderContentPage("buildings", buildingsData, request, response);
 });
 
 server.get('/locations', function(request, response, next) {
@@ -380,40 +378,36 @@ server.get('*', function(request, response) {
 	response.render('404Page');
 });
 
-function getBuildingsData() {
-	//var query = sql.format('SELECT * FROM Building WHERE 1');
-	var query = sql.format('SELECT * FROM Location WHERE 1');
-	console.log("QUERY: " + query);
+function getBuildingsData(content) {
+	var query = sql.format('SELECT * FROM Building WHERE 1');
+	//console.log("QUERY: " + query);
 	connection.query(query, function (error, results, fields) {
 		if (error) {
 			console.log("ERROR: " + error);
 			return;
 		}
-		//results = results[0];
-		console.log('The results: ', results);
+		//console.log('The results: ', results);
 
-		// TODO Convert the results structure into the structure that handlebars uses
-		console.log("Keys:? ", Object.keys(results[0]));
+		// Convert the results structure into the structure that handlebars uses
 		var title_arr = [];
 		for (var key in Object.keys(results[0])) {
 		    var tmp_obj = {title: Object.keys(results[0])[key]};
 		    title_arr.push(tmp_obj);
 		}
-		console.log("Title Array: ", title_arr);
+		//console.log("Title Array: ", title_arr);
 
 		var content_arr = [];
 		for (var index in results) {
-		    //var tmp_obj = {};
-		    //console.log("Outer: ", results[index]);
-
 		    var tmp_arr = [];
 		    for (var jndex in results[index]) {
-			//var tmp_sub_obj = {};
-			//console.log("Inner: ", results[index][jndex]);
-			tmp_arr.push(results[index][jndex]);
+				var tmp_sub_obj = {content: results[index][jndex]};
+				tmp_arr.push(tmp_sub_obj);
 		    }
 		    content_arr.push(tmp_arr);
 		}
-		console.log("Content Array: ", content_arr);
+		//console.log("Content Array: ", content_arr);
+
+		// Callback return the data
+		content(title_arr, content_arr);
 	});
 }
