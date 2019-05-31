@@ -197,6 +197,132 @@ function renderContentPage(page, titles, data, request, response) {
 		};
 		console.log("TemplateArgs: " + templateArgs);
 		response.render('contentPage', templateArgs);
+	} else if (page == "locations") {
+		var templateArgs = {
+			title: "Tools DB",
+			nav_title: "Tools DB",
+			loggedIn: authorization,
+			active: "locations",
+			loadCss: [
+				{filename: "index.css"},
+				{filename: "building.css"},
+				{filename: "modal.css"},
+			],
+			loadJs: [
+				{filename: "index.js"},
+				{filename: "modal.js"},
+			],
+			header: titles,
+			item: data,
+			modalHeader: "Add New Building",
+			modalType: "buildings",
+			modalContentRow: [
+				{
+					inputType: "text",
+					placeholder: "Address",
+					name: "address",
+					required: true,
+				},
+				{
+					inputType: "text",
+					placeholder: "Name",
+					name: "name",
+					required: true,
+				},
+				{
+					inputType: "text",
+					placeholder: "Manager",
+					name: "manager",
+					required: true,
+				},
+			],
+		};
+		console.log("TemplateArgs: " + templateArgs);
+		response.render('contentPage', templateArgs);
+	} else if (page == "tools") {
+		var templateArgs = {
+			title: "Tools DB",
+			nav_title: "Tools DB",
+			loggedIn: authorization,
+			active: "tools",
+			loadCss: [
+				{filename: "index.css"},
+				{filename: "building.css"},
+				{filename: "modal.css"},
+			],
+			loadJs: [
+				{filename: "index.js"},
+				{filename: "modal.js"},
+			],
+			header: titles,
+			item: data,
+			modalHeader: "Add New Building",
+			modalType: "buildings",
+			modalContentRow: [
+				{
+					inputType: "text",
+					placeholder: "Address",
+					name: "address",
+					required: true,
+				},
+				{
+					inputType: "text",
+					placeholder: "Name",
+					name: "name",
+					required: true,
+				},
+				{
+					inputType: "text",
+					placeholder: "Manager",
+					name: "manager",
+					required: true,
+				},
+			],
+		};
+		console.log("TemplateArgs: " + templateArgs);
+		response.render('contentPage', templateArgs);
+	} else if (page == "maintainers") {
+		var templateArgs = {
+			title: "Tools DB",
+			nav_title: "Tools DB",
+			loggedIn: authorization,
+			active: "maintainers",
+			loadCss: [
+				{filename: "index.css"},
+				{filename: "building.css"},
+				{filename: "modal.css"},
+			],
+			loadJs: [
+				{filename: "index.js"},
+				{filename: "modal.js"},
+			],
+			header: titles,
+			item: data,
+			modalHeader: "Add New Building",
+			modalType: "buildings",
+			modalContentRow: [
+				{
+					inputType: "text",
+					placeholder: "Address",
+					name: "address",
+					required: true,
+				},
+				{
+					inputType: "text",
+					placeholder: "Name",
+					name: "name",
+					required: true,
+				},
+				{
+					inputType: "text",
+					placeholder: "Manager",
+					name: "manager",
+					required: true,
+				},
+			],
+		};
+		console.log("TemplateArgs: " + templateArgs);
+		response.render('contentPage', templateArgs);
 	}
 };
 
@@ -342,21 +468,33 @@ server.get('/buildings', function(request, response, next) {
  * Handle get requests for /locations
 ******************** */
 server.get('/locations', function(request, response, next) {
-	renderContentPage("locations", request, response);
+	getLocationsData(function(titles, locationsData) {
+		console.log("Titles: " + titles);
+		console.log("Buildings data: " + locationsData);
+		renderContentPage("locations", titles, locationsData, request, response);
+	});
 });
 
 /* ********************
  * Handle get requests for /tools
 ******************** */
 server.get('/tools', function(request, response, next) {
-	renderContentPage("tools", request, response);
+	getToolsData(function(titles, toolsData) {
+		console.log("Titles: " + titles);
+		console.log("Buildings data: " + toolsData);
+		renderContentPage("locations", titles, toolsData, request, response);
+	});
 });
 
 /* ********************
  * Handle get requests for /maintainers
 ******************** */
 server.get('/maintainers', function(request, response, next) {
-	renderContentPage("maintainers", request, response);
+	getMaintainerData(function(titles, maintainersData) {
+		console.log("Titles: " + titles);
+		console.log("Buildings data: " + maintainersData);
+		renderContentPage("maintainers", titles, maintainersData, request, response);
+	});
 });
 
 /* ********************
@@ -443,7 +581,7 @@ server.get('*', function(request, response) {
 function getBuildingsData(content) {
 	// Generate the select statement
 	var query = sql.format('SELECT * FROM Building WHERE 1');
-	//console.log("QUERY: " + query);
+
 	// Execute the select statement
 	connection.query(query, function (error, results, fields) {
 		// Pass the error back if present
@@ -451,30 +589,96 @@ function getBuildingsData(content) {
 			console.log("ERROR: " + error);
 			return;
 		}
-		//console.log('The results: ', results);
-
-		// Convert the results structure into the structure that handlebars uses
-		// Generate an array of titles (headers of the tables)
-		var title_arr = [];
-		for (var key in Object.keys(results[0])) {
-		    var tmp_obj = {title: Object.keys(results[0])[key]};
-		    title_arr.push(tmp_obj);
-		}
-		//console.log("Title Array: ", title_arr);
-
-		// Generate the content
-		var content_arr = [];
-		for (var index in results) {
-		    var tmp_arr = [];
-		    for (var jndex in results[index]) {
-				var tmp_sub_obj = {content: results[index][jndex]};
-				tmp_arr.push(tmp_sub_obj);
-		    }
-		    content_arr.push(tmp_arr);
-		}
-		//console.log("Content Array: ", content_arr);
-
-		// Callback to return the data
-		content(title_arr, content_arr);
+		parseOutTitlesAndContent(results, function(titles, parsedContent) {
+			// Callback to return the data
+			content(titles, parsedContent);
+		});
 	});
+}
+
+/* ********************
+ * Query the DB to get the locations table data and construct the response JSO for handlebars
+******************** */
+function getLocationsData(content) {
+	// Generate the select statement
+	var query = sql.format('SELECT * FROM Location WHERE 1');
+
+	// Execute the select statement
+	connection.query(query, function (error, results, fields) {
+		// Pass the error back if present
+		if (error) {
+			console.log("ERROR: " + error);
+			return;
+		}
+		parseOutTitlesAndContent(results, function(titles, parsedContent) {
+			// Callback to return the data
+			content(titles, parsedContent);
+		});
+	});
+}
+
+/* ********************
+ * Query the DB to get the tools table data and construct the response JSO for handlebars
+******************** */
+function getToolsData(content) {
+	// Generate the select statement
+	var query = sql.format('SELECT * FROM Tool WHERE 1');
+
+	// Execute the select statement
+	connection.query(query, function (error, results, fields) {
+		// Pass the error back if present
+		if (error) {
+			console.log("ERROR: " + error);
+			return;
+		}
+		parseOutTitlesAndContent(results, function(titles, parsedContent) {
+			// Callback to return the data
+			content(titles, parsedContent);
+		});
+	});
+}
+
+/* ********************
+ * Query the DB to get the tools table data and construct the response JSO for handlebars
+******************** */
+function getMaintainerData(content) {
+	// Generate the select statement
+	var query = sql.format('SELECT * FROM `Maintenance Company` WHERE 1');
+
+	// Execute the select statement
+	connection.query(query, function (error, results, fields) {
+		// Pass the error back if present
+		if (error) {
+			console.log("ERROR: " + error);
+			return;
+		}
+		parseOutTitlesAndContent(results, function(titles, parsedContent) {
+			// Callback to return the data
+			content(titles, parsedContent);
+		});
+	});
+}
+
+function parseOutTitlesAndContent(results, content) {
+	var title_arr = [];
+	for (var key in Object.keys(results[0])) {
+		var tmp_obj = {title: Object.keys(results[0])[key]};
+		title_arr.push(tmp_obj);
+	}
+	//console.log("Title Array: ", title_arr);
+
+	// Generate the content
+	var content_arr = [];
+	for (var index in results) {
+		var tmp_arr = [];
+		for (var jndex in results[index]) {
+			var tmp_sub_obj = {content: results[index][jndex]};
+			tmp_arr.push(tmp_sub_obj);
+		}
+		content_arr.push(tmp_arr);
+	}
+	//console.log("Content Array: ", content_arr);
+
+	// Callback to return the data
+	content(title_arr, content_arr);
 }
