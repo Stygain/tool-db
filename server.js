@@ -214,8 +214,8 @@ function renderContentPage(page, titles, data, request, response) {
 			],
 			header: titles,
 			item: data,
-			modalHeader: "Add New Building",
-			modalType: "buildings",
+			modalHeader: "Add New Location",
+			modalType: "locations",
 			modalContentRow: [
 				{
 					inputType: "text",
@@ -256,8 +256,8 @@ function renderContentPage(page, titles, data, request, response) {
 			],
 			header: titles,
 			item: data,
-			modalHeader: "Add New Building",
-			modalType: "buildings",
+			modalHeader: "Add New Tool",
+			modalType: "tools",
 			modalContentRow: [
 				{
 					inputType: "text",
@@ -298,8 +298,8 @@ function renderContentPage(page, titles, data, request, response) {
 			],
 			header: titles,
 			item: data,
-			modalHeader: "Add New Building",
-			modalType: "buildings",
+			modalHeader: "Add New Maintenance Company",
+			modalType: "maintainers",
 			modalContentRow: [
 				{
 					inputType: "text",
@@ -444,11 +444,14 @@ server.post('/register', function(request, response) {
 		connection.query(query, function (error, results, fields) {
 			if (error) {
 				console.log("ERROR: " + error);
+				response.status(401).end();
 				return;
 			}
 			console.log('The results: ', results);
 			// Neat!
-			response.write('hi');
+			// TODO fix this, redirecting isnt working
+			response.status(200).end();
+			//response.redirect('/');
 		});
 	});
 });
@@ -470,7 +473,7 @@ server.get('/buildings', function(request, response, next) {
 server.get('/locations', function(request, response, next) {
 	getLocationsData(function(titles, locationsData) {
 		console.log("Titles: " + titles);
-		console.log("Buildings data: " + locationsData);
+		console.log("Locations data: " + locationsData);
 		renderContentPage("locations", titles, locationsData, request, response);
 	});
 });
@@ -481,8 +484,8 @@ server.get('/locations', function(request, response, next) {
 server.get('/tools', function(request, response, next) {
 	getToolsData(function(titles, toolsData) {
 		console.log("Titles: " + titles);
-		console.log("Buildings data: " + toolsData);
-		renderContentPage("locations", titles, toolsData, request, response);
+		console.log("Tools data: " + toolsData);
+		renderContentPage("tools", titles, toolsData, request, response);
 	});
 });
 
@@ -492,7 +495,7 @@ server.get('/tools', function(request, response, next) {
 server.get('/maintainers', function(request, response, next) {
 	getMaintainerData(function(titles, maintainersData) {
 		console.log("Titles: " + titles);
-		console.log("Buildings data: " + maintainersData);
+		console.log("Maintainers data: " + maintainersData);
 		renderContentPage("maintainers", titles, maintainersData, request, response);
 	});
 });
