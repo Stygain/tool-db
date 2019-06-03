@@ -429,7 +429,6 @@ server.get('/register', function(request, response, next) {
 server.post('/register', function(request, response) {
 	console.log("Request username: " + request.body.username);
 	console.log("Request password: " + request.body.password);
-	// Do some database stuff
 
 	var password = request.body.password;
 	var pass_hash;
@@ -444,14 +443,16 @@ server.post('/register', function(request, response) {
 		connection.query(query, function (error, results, fields) {
 			if (error) {
 				console.log("ERROR: " + error);
+				console.log("SENDING 401");
 				response.status(401).end();
-				return;
+				//return;
+			} else {
+			    console.log('The results: ', results);
+			    // Neat!
+			    // TODO fix this, redirecting isnt working
+			    response.status(200).end();
+			    //response.redirect('/');
 			}
-			console.log('The results: ', results);
-			// Neat!
-			// TODO fix this, redirecting isnt working
-			response.status(200).end();
-			//response.redirect('/');
 		});
 	});
 });

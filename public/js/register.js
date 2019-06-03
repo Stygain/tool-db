@@ -53,7 +53,10 @@ function submitAction(button) {
 	if (button == 'login') {
 		console.log("Making post to login");
 		xhr.open('POST', '/login');
-		for (field = 0; field < inputList.length - 1; field++) {
+		console.log("InputList: " + inputList);
+		for (field = 0; field < 2; field++) {
+			console.log("Thing: " + inputList[field]);
+			console.log("Value: " + inputList[field].value);
 			urlEncodedDataPairs[inputList[field].name] = inputList[field].value;
 		}
 	} else {
@@ -64,7 +67,22 @@ function submitAction(button) {
 		}
 	}
 
-	//xhr.onreadystatechange = logContents;
+	var modal = document.getElementById("status-container");
+	// TODO Figure out why this doesn't work for the register
+	xhr.onreadystatechange = function() {
+	    console.log("STATUS: " + this.status);
+	    if (this.status == 200) {
+		document.getElementById("status").innerHTML = "Success!";
+	    } else {
+		document.getElementById("status").innerHTML = "Failed to create user!";
+	    }
+	    modal.style.display = "block";
+
+	    // Register a timeout to make it go away in a couple of seconds
+	    setTimeout(function(modal) {
+		modal.style.display = "none";
+	    }, 1500, modal);
+	};
 	xhr.setRequestHeader('Content-Type', 'application/json')
 
 	console.log(JSON.stringify(urlEncodedDataPairs));

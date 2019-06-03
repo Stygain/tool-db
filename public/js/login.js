@@ -77,7 +77,8 @@ function submitAction(button) {
 		document.getElementById("status").innerHTML = "Failed to authenticate user!";
 	    }
 	    modal.style.display = "block";
-	    //register a thing to make it go away in a couple of seconds
+
+	    // Register a timeout to make it go away in a couple of seconds
 	    setTimeout(function(modal) {
 		modal.style.display = "none";
 	    }, 1500, modal);
