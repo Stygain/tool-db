@@ -488,14 +488,14 @@ server.post('/register', function(request, response) {
 	}
 
 	var password = request.body.password;
-	var pass_hash;
+	var passHash;
 
 	bcrypt.hash(password, saltRounds, function(err, hash) {
 		// Store hash in your password DB.
 		console.log("HASH: " + hash);
-		pass_hash = hash;
+		passHash = hash;
 
-		var post  = {email: request.body.username, password: pass_hash};
+		var post  = {email: request.body.username, password: passHash};
 		var query = sql.format('INSERT INTO User SET ?', post);
 		connection.query(query, function (error, results, fields) {
 			if (error) {
@@ -764,27 +764,27 @@ function getMaintainerData(content) {
 }
 
 function parseOutTitlesAndContent(results, content) {
-	var title_arr = [];
+	var titleArr = [];
 	for (var key in Object.keys(results[0])) {
-		var tmp_obj = {title: Object.keys(results[0])[key]};
-		title_arr.push(tmp_obj);
+		var tmpObj = {title: Object.keys(results[0])[key]};
+		titleArr.push(tmpObj);
 	}
 	//console.log("Title Array: ", title_arr);
 
 	// Generate the content
-	var content_arr = [];
+	var contentArr = [];
 	for (var index in results) {
-		var tmp_arr = [];
+		var tmpArr = [];
 		for (var jndex in results[index]) {
-			var tmp_sub_obj = {content: results[index][jndex]};
-			tmp_arr.push(tmp_sub_obj);
+			var tmpSubObj = {content: results[index][jndex]};
+			tmpArr.push(tmpSubObj);
 		}
-		content_arr.push(tmp_arr);
+		contentArr.push(tmpArr);
 	}
 	//console.log("Content Array: ", content_arr);
 
 	// Callback to return the data
-	content(title_arr, content_arr);
+	content(titleArr, contentArr);
 }
 
 function convertSelectResultsToArray(results, callback) {
@@ -805,8 +805,8 @@ function convertSelectResultsToArray(results, callback) {
 			//console.log(results2.email);
 			console.log(results2[key]);
 			//var tmp_obj = {[key]: results[index][key]};
-			var tmp_obj = {label: results[index][key], value: results[index][key]};
-			resultsArr.push(tmp_obj);
+			var tmpObj = {label: results[index][key], value: results[index][key]};
+			resultsArr.push(tmpObj);
 			//resultsArr.push(results[index][key]);
 		}
 	}
