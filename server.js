@@ -188,14 +188,17 @@ function renderContentPage(page, titles, data, request, response) {
 					required: true,
 				},
 				{
-					inputType: "text",
-					placeholder: "Manager",
-					name: "manager",
-					required: true,
+					inputType: "combobox",
+					label: "Manager",
+					cbData: [
+						{
+							value: "asdf",
+							label: "Asdf",
+						},
+					],
 				},
 			],
 		};
-		console.log("TemplateArgs: " + templateArgs);
 		response.render('contentPage', templateArgs);
 	} else if (page == "locations") {
 		var templateArgs = {
@@ -219,9 +222,19 @@ function renderContentPage(page, titles, data, request, response) {
 			modalContentRow: [
 				{
 					inputType: "text",
-					placeholder: "Address",
-					name: "address",
+					placeholder: "ID",
+					name: "id",
 					required: true,
+				},
+				{
+					inputType: "combobox",
+					label: "Address",
+					cbData: [
+						{
+							value: "Location addr",
+							label: "addr",
+						},
+					],
 				},
 				{
 					inputType: "text",
@@ -229,15 +242,8 @@ function renderContentPage(page, titles, data, request, response) {
 					name: "name",
 					required: true,
 				},
-				{
-					inputType: "text",
-					placeholder: "Manager",
-					name: "manager",
-					required: true,
-				},
 			],
 		};
-		console.log("TemplateArgs: " + templateArgs);
 		response.render('contentPage', templateArgs);
 	} else if (page == "tools") {
 		var templateArgs = {
@@ -261,8 +267,8 @@ function renderContentPage(page, titles, data, request, response) {
 			modalContentRow: [
 				{
 					inputType: "text",
-					placeholder: "Address",
-					name: "address",
+					placeholder: "TID",
+					name: "tid",
 					required: true,
 				},
 				{
@@ -272,14 +278,27 @@ function renderContentPage(page, titles, data, request, response) {
 					required: true,
 				},
 				{
-					inputType: "text",
-					placeholder: "Manager",
-					name: "manager",
-					required: true,
+					inputType: "combobox",
+					label: "Maintenance Company",
+					cbData: [
+						{
+							value: "Company Name",
+							label: "co_name",
+						},
+					],
+				},
+				{
+					inputType: "combobox",
+					label: "Location",
+					cbData: [
+						{
+							value: "Location ID",
+							label: "lid",
+						},
+					],
 				},
 			],
 		};
-		console.log("TemplateArgs: " + templateArgs);
 		response.render('contentPage', templateArgs);
 	} else if (page == "maintainers") {
 		var templateArgs = {
@@ -303,25 +322,24 @@ function renderContentPage(page, titles, data, request, response) {
 			modalContentRow: [
 				{
 					inputType: "text",
-					placeholder: "Address",
-					name: "address",
+					placeholder: "Business Name",
+					name: "business_name",
 					required: true,
 				},
 				{
 					inputType: "text",
-					placeholder: "Name",
-					name: "name",
+					placeholder: "Phone Number",
+					name: "phone",
 					required: true,
 				},
 				{
 					inputType: "text",
-					placeholder: "Manager",
-					name: "manager",
+					placeholder: "E-Mail",
+					name: "email",
 					required: true,
 				},
 			],
 		};
-		console.log("TemplateArgs: " + templateArgs);
 		response.render('contentPage', templateArgs);
 	}
 };
@@ -385,9 +403,7 @@ server.post('/login', function(request, response) {
 				bcrypt.hash(toHash, saltRounds, function(err, hash) {
 					var cookieValue = hash;
 					response.cookie(cookieName, "somerandonstuffs", { maxAge: 900000, httpOnly: true });
-					// TODO fix this, redirecting isnt working
 					response.status(200).end();
-					//response.redirect('/');
 				});
 			} else {
 			    response.status(401).end();
@@ -427,8 +443,15 @@ server.get('/register', function(request, response, next) {
  * Handle post requests for /register
 ******************** */
 server.post('/register', function(request, response) {
-	console.log("Request username: " + request.body.username);
-	console.log("Request password: " + request.body.password);
+	//console.log("Request username: " + request.body.username);
+	//console.log("Request password: " + request.body.password);
+	//console.log("Reentered password: " + request.body.reenterPassword);
+
+	if (request.body.password != request.body.reenterPassword) {
+		console.log("User passwords did not match");
+		response.status(401).end();
+		return;
+	}
 
 	var password = request.body.password;
 	var pass_hash;
@@ -443,15 +466,11 @@ server.post('/register', function(request, response) {
 		connection.query(query, function (error, results, fields) {
 			if (error) {
 				console.log("ERROR: " + error);
-				console.log("SENDING 401");
 				response.status(401).end();
-				//return;
+				return;
 			} else {
 			    console.log('The results: ', results);
-			    // Neat!
-			    // TODO fix this, redirecting isnt working
 			    response.status(200).end();
-			    //response.redirect('/');
 			}
 		});
 	});
@@ -462,8 +481,6 @@ server.post('/register', function(request, response) {
 ******************** */
 server.get('/buildings', function(request, response, next) {
 	getBuildingsData(function(titles, buildingsData) {
-		console.log("Titles: " + titles);
-		console.log("Buildings data: " + buildingsData);
 		renderContentPage("buildings", titles, buildingsData, request, response);
 	});
 });
@@ -473,8 +490,6 @@ server.get('/buildings', function(request, response, next) {
 ******************** */
 server.get('/locations', function(request, response, next) {
 	getLocationsData(function(titles, locationsData) {
-		console.log("Titles: " + titles);
-		console.log("Locations data: " + locationsData);
 		renderContentPage("locations", titles, locationsData, request, response);
 	});
 });
@@ -484,8 +499,6 @@ server.get('/locations', function(request, response, next) {
 ******************** */
 server.get('/tools', function(request, response, next) {
 	getToolsData(function(titles, toolsData) {
-		console.log("Titles: " + titles);
-		console.log("Tools data: " + toolsData);
 		renderContentPage("tools", titles, toolsData, request, response);
 	});
 });
@@ -495,8 +508,6 @@ server.get('/tools', function(request, response, next) {
 ******************** */
 server.get('/maintainers', function(request, response, next) {
 	getMaintainerData(function(titles, maintainersData) {
-		console.log("Titles: " + titles);
-		console.log("Maintainers data: " + maintainersData);
 		renderContentPage("maintainers", titles, maintainersData, request, response);
 	});
 });

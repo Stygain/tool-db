@@ -1,10 +1,18 @@
-<div class={{name}}-container>
+<div class=modal-container>
 	{{#ifCond inputType '==' "text"}}
 		{{#if required}}
 			<input type="{{type}}" placeholder="{{placeholder}}" name="{{name}}" required>
 		{{else}}
 			<input type="{{type}}" placeholder="{{placeholder}}" name="{{name}}">
 		{{/if}}
-	{{else}}
+	{{else ifCond inputType '==' "combobox"}}
+		<div class="combobox-row">
+			<h3>{{label}}</h3>
+			<select>
+				{{#each cbData}}
+					{{> cbRow}}
+				{{/each}}
+			</select>
+		</div>
 	{{/ifCond}}
 </div>
