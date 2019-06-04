@@ -428,11 +428,9 @@ server.post('/login', function(request, response) {
 			return;
 		}
 		console.log('The results: ', results);
-		console.log("PASS?: " + results[0].password);
 		bcrypt.compare(request.body.password, results[0].password, function(err, res) {
 			// If they are authorized, set a cookie
 			if (res == true) {
-				console.log("IT IS TRUE");
 				// Now figure out what value to use for the cookie
 				var cookieName = "site_auth";
 				var toHash = request.body.username + request.body.password;
@@ -536,7 +534,6 @@ server.post('/buildings', function(request, response) {
 	console.log(request.body.name);
 	console.log(request.body.manager);
 
-	//var post  = {address: request.body.address, name: request.body.name, manager: request.body.manager};
 	var query = sql.format('INSERT INTO Building SET ?', request.body);
 	connection.query(query, function (error, results, fields) {
 		if (error) {
@@ -548,33 +545,6 @@ server.post('/buildings', function(request, response) {
 			response.status(200).end();
 		}
 	});
-	//// Do some database stuff
-	//var query = sql.format('SELECT password FROM User WHERE email = ?', [request.body.username]);
-	//console.log("QUERY: " + query);
-	//connection.query(query, function (error, results, fields) {
-	//	if (error) {
-	//		console.log("ERROR: " + error);
-	//		return;
-	//	}
-	//	console.log('The results: ', results);
-	//	console.log("PASS?: " + results[0].password);
-	//	bcrypt.compare(request.body.password, results[0].password, function(err, res) {
-	//		// If they are authorized, set a cookie
-	//		if (res == true) {
-	//			console.log("IT IS TRUE");
-	//			// Now figure out what value to use for the cookie
-	//			var cookieName = "site_auth";
-	//			var toHash = request.body.username + request.body.password;
-	//			bcrypt.hash(toHash, saltRounds, function(err, hash) {
-	//				var cookieValue = hash;
-	//				response.cookie(cookieName, "somerandonstuffs", { maxAge: 900000, httpOnly: true });
-	//				response.status(200).end();
-	//			});
-	//		} else {
-	//		    response.status(401).end();
-	//		}
-	//	});
-	//});
 });
 
 /* ********************
@@ -839,24 +809,11 @@ function parseOutTitlesAndContent(results, content) {
 function convertSelectResultsToArray(results, callback) {
 	var resultsArr = [];
 	for (var index in results) {
-		//console.log("Pushing: ");
-		//console.log(results[index]);
-		//console.log("What is: ");
-		//console.log(Object.keys(results[index]));
 		for (var keyVar in Object.keys(results[index])) {
 			var key = Object.keys(results[index])[keyVar];
-			//console.log("\nKEY");
-			//console.log(key);
-			//console.log("Results index:");
-			//console.log(results[index]);
-			//console.log("Results index key:");
 			var results2 = results[index];
-			//console.log(results2.email);
-			//console.log(results2[key]);
-			//var tmp_obj = {[key]: results[index][key]};
 			var tmpObj = {label: results[index][key], value: results[index][key]};
 			resultsArr.push(tmpObj);
-			//resultsArr.push(results[index][key]);
 		}
 	}
 	console.log("The array:");
