@@ -209,110 +209,129 @@ function renderContentPage(page, titles, data, request, response) {
 			});
 		});
 	} else if (page == "locations") {
-		var templateArgs = {
-			title: "Tools DB",
-			nav_title: "Tools DB",
-			loggedIn: authorization,
-			active: "locations",
-			loadCss: [
-				{filename: "index.css"},
-				{filename: "building.css"},
-				{filename: "modal.css"},
-				{filename: "status.css"},
-			],
-			loadJs: [
-				{filename: "index.js"},
-				{filename: "modal.js"},
-			],
-			header: titles,
-			item: data,
-			modalHeader: "Add New Location",
-			modalType: "locations",
-			modalContentRow: [
-				{
-					inputType: "text",
-					placeholder: "ID",
-					name: "id",
-					required: true,
-				},
-				{
-					inputType: "combobox",
-					label: "Address",
-					name: "address",
-					cbData: [
+		var query = sql.format('SELECT address FROM Location WHERE 1');
+		console.log("QUERY: " + query);
+		connection.query(query, function (error, results, fields) {
+			if (error) {
+				console.log("ERROR: " + error);
+				return;
+			}
+			console.log('The results: ', results);
+			convertSelectResultsToArray(results, function(cbDataArray) {
+				var templateArgs = {
+					title: "Tools DB",
+					nav_title: "Tools DB",
+					loggedIn: authorization,
+					active: "locations",
+					loadCss: [
+						{filename: "index.css"},
+						{filename: "building.css"},
+						{filename: "modal.css"},
+						{filename: "status.css"},
+					],
+					loadJs: [
+						{filename: "index.js"},
+						{filename: "modal.js"},
+					],
+					header: titles,
+					item: data,
+					modalHeader: "Add New Location",
+					modalType: "locations",
+					modalContentRow: [
 						{
-							value: "Location addr",
-							label: "addr",
+							inputType: "text",
+							placeholder: "ID",
+							name: "id",
+							required: true,
+						},
+						{
+							inputType: "combobox",
+							label: "Address",
+							name: "address",
+							cbData: cbDataArray,
+						},
+						{
+							inputType: "text",
+							placeholder: "Name",
+							name: "name",
+							required: true,
 						},
 					],
-				},
-				{
-					inputType: "text",
-					placeholder: "Name",
-					name: "name",
-					required: true,
-				},
-			],
-		};
-		response.render('contentPage', templateArgs);
+				};
+				response.render('contentPage', templateArgs);
+			});
+		});
 	} else if (page == "tools") {
-		var templateArgs = {
-			title: "Tools DB",
-			nav_title: "Tools DB",
-			loggedIn: authorization,
-			active: "tools",
-			loadCss: [
-				{filename: "index.css"},
-				{filename: "building.css"},
-				{filename: "modal.css"},
-				{filename: "status.css"},
-			],
-			loadJs: [
-				{filename: "index.js"},
-				{filename: "modal.js"},
-			],
-			header: titles,
-			item: data,
-			modalHeader: "Add New Tool",
-			modalType: "tools",
-			modalContentRow: [
-				{
-					inputType: "text",
-					placeholder: "TID",
-					name: "tid",
-					required: true,
-				},
-				{
-					inputType: "text",
-					placeholder: "Name",
-					name: "name",
-					required: true,
-				},
-				{
-					inputType: "combobox",
-					label: "Maintenance Company",
-					name: "maintainer",
-					cbData: [
-						{
-							value: "Company Name",
-							label: "co_name",
-						},
-					],
-				},
-				{
-					inputType: "combobox",
-					label: "Location",
-					name: "location",
-					cbData: [
-						{
-							value: "Location ID",
-							label: "lid",
-						},
-					],
-				},
-			],
-		};
-		response.render('contentPage', templateArgs);
+		var query = sql.format('SELECT `business name` FROM `Maintenance Company` WHERE 1');
+		console.log("QUERY: " + query);
+		connection.query(query, function (error, results, fields) {
+			if (error) {
+				console.log("ERROR: " + error);
+				return;
+			}
+			console.log('The results: ', results);
+			convertSelectResultsToArray(results, function(maintainerCbDataArray) {
+				query = sql.format('SELECT ID FROM Location WHERE 1');
+				console.log("QUERY: " + query);
+				connection.query(query, function (error, results, fields) {
+					if (error) {
+						console.log("ERROR: " + error);
+						return;
+					}
+					console.log('The results: ', results);
+					convertSelectResultsToArray(results, function(locationCbDataArray) {
+						var templateArgs = {
+							title: "Tools DB",
+							nav_title: "Tools DB",
+							loggedIn: authorization,
+							active: "tools",
+							loadCss: [
+								{filename: "index.css"},
+								{filename: "building.css"},
+								{filename: "modal.css"},
+								{filename: "status.css"},
+							],
+							loadJs: [
+								{filename: "index.js"},
+								{filename: "modal.js"},
+							],
+							header: titles,
+							item: data,
+							modalHeader: "Add New Tool",
+							modalType: "tools",
+							modalContentRow: [
+								{
+									inputType: "text",
+									placeholder: "TID",
+									name: "tid",
+									required: true,
+								},
+								{
+									inputType: "text",
+									placeholder: "Name",
+									name: "name",
+									required: true,
+								},
+								{
+									inputType: "combobox",
+									label: "Maintenance Company",
+									name: "maintainer",
+									cbData: maintainerCbDataArray,
+								},
+								{
+									inputType: "combobox",
+									label: "Location",
+									name: "location",
+									cbData: locationCbDataArray,
+								},
+							],
+						};
+						response.render('contentPage', templateArgs);
+					});
+				});
+			});
+		});
+		
 	} else if (page == "maintainers") {
 		var templateArgs = {
 			title: "Tools DB",
@@ -777,19 +796,21 @@ function convertSelectResultsToArray(results, callback) {
 		//console.log(Object.keys(results[index]));
 		for (var keyVar in Object.keys(results[index])) {
 			var key = Object.keys(results[index])[keyVar];
-			//console.log("\nKEY");
-			//console.log(key);
+			console.log("\nKEY");
+			console.log(key);
 			//console.log("Results index:");
 			//console.log(results[index]);
 			//console.log("Results index key:");
 			var results2 = results[index];
 			//console.log(results2.email);
-			//console.log(results2[key]);
+			console.log(results2[key]);
 			//var tmp_obj = {[key]: results[index][key]};
 			var tmp_obj = {label: results[index][key], value: results[index][key]};
 			resultsArr.push(tmp_obj);
 			//resultsArr.push(results[index][key]);
 		}
 	}
+	console.log("The array:");
+	console.log(resultsArr);
 	callback(resultsArr);
 }
