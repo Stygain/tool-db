@@ -172,7 +172,7 @@ function renderContentPage(page, titles, data, request, response) {
 					active: "buildings",
 					loadCss: [
 						{filename: "index.css"},
-						{filename: "building.css"},
+						{filename: "contentPage.css"},
 						{filename: "modal.css"},
 						{filename: "status.css"},
 					],
@@ -225,7 +225,7 @@ function renderContentPage(page, titles, data, request, response) {
 					active: "locations",
 					loadCss: [
 						{filename: "index.css"},
-						{filename: "building.css"},
+						{filename: "contentPage.css"},
 						{filename: "modal.css"},
 						{filename: "status.css"},
 					],
@@ -287,7 +287,7 @@ function renderContentPage(page, titles, data, request, response) {
 							active: "tools",
 							loadCss: [
 								{filename: "index.css"},
-								{filename: "building.css"},
+								{filename: "contentPage.css"},
 								{filename: "modal.css"},
 								{filename: "status.css"},
 							],
@@ -340,7 +340,7 @@ function renderContentPage(page, titles, data, request, response) {
 			active: "maintainers",
 			loadCss: [
 				{filename: "index.css"},
-				{filename: "building.css"},
+				{filename: "contentPage.css"},
 				{filename: "modal.css"},
 				{filename: "status.css"},
 			],
