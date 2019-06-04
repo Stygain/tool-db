@@ -112,13 +112,9 @@ hbs.registerHelper('ifCond', function (v1, operator, v2, options) {
  * Check if the user is authenticated
 ******************** */
 function checkAuth(request) {
-	console.log("Checking authorization");
-	console.log(request.cookies.site_auth);
 	if (request.cookies.site_auth) {
-		console.log("Returning true");
 		return true;
 	}
-	console.log("Returning false");
 	return false;
 }
 
@@ -395,11 +391,6 @@ server.get('/', (request, response) => {
 ******************** */
 server.get('/login', function(request, response) {
 	console.log("Rendering login page");
-	var authorization = checkAuth(request);
-	if (!authorization) {
-		response.redirect('/');
-		return;
-	}
 	var templateArgs = {
 		title: "Title",
 		nav_title: "Tools DB",
@@ -459,11 +450,6 @@ server.post('/login', function(request, response) {
 ******************** */
 server.get('/register', function(request, response, next) {
 	console.log("Rendering register page");
-	var authorization = checkAuth(request);
-	if (!authorization) {
-		response.redirect('/');
-		return;
-	}
 	var templateArgs = {
 		title: "Title",
 		nav_title: "Tools DB",
@@ -525,8 +511,7 @@ server.get('/buildings', function(request, response, next) {
 	console.log("Rendering buildings page");
 	var authorization = checkAuth(request);
 	if (!authorization) {
-		console.log("In the if statement");
-		response.redirect('/');
+		response.redirect('/login');
 		return;
 	}
 	getBuildingsData(function(titles, buildingsData) {
@@ -596,7 +581,7 @@ server.get('/locations', function(request, response, next) {
 	console.log("Rendering locations page");
 	var authorization = checkAuth(request);
 	if (!authorization) {
-		response.redirect('/');
+		response.redirect('/login');
 		return;
 	}
 	getLocationsData(function(titles, locationsData) {
@@ -611,7 +596,7 @@ server.get('/tools', function(request, response, next) {
 	console.log("Rendering tools page");
 	var authorization = checkAuth(request);
 	if (!authorization) {
-		response.redirect('/');
+		response.redirect('/login');
 		return;
 	}
 	getToolsData(function(titles, toolsData) {
@@ -626,7 +611,7 @@ server.get('/maintainers', function(request, response, next) {
 	console.log("Rendering maintainers page");
 	var authorization = checkAuth(request);
 	if (!authorization) {
-		response.redirect('/');
+		response.redirect('/login');
 		return;
 	}
 	getMaintainerData(function(titles, maintainersData) {
@@ -641,7 +626,7 @@ server.get('/logout', function(request, response, next) {
 	console.log("Rendering logout page");
 	var authorization = checkAuth(request);
 	if (!authorization) {
-		response.redirect('/');
+		response.redirect('/login');
 		return;
 	}
 	// Remove the cookie
