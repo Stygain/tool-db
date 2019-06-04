@@ -8,7 +8,7 @@
 	{{else ifCond inputType '==' "combobox"}}
 		<div class="combobox-row">
 			<h3>{{label}}</h3>
-			<select>
+			<select name={{name}}>
 				{{#each cbData}}
 					{{> cbRow}}
 				{{/each}}

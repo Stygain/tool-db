@@ -31,7 +31,8 @@ function submitAction(button) {
 	var urlEncodedData = "";
 	var urlEncodedDataPairs = {};
 	var field;
-	var inputList = document.querySelectorAll("input");
+	var inputList1 = document.querySelectorAll("input");
+	var inputList2 = document.querySelectorAll("select");
 
 	if (!xhr) {
 		alert("Cannot create http request.")
@@ -50,11 +51,12 @@ function submitAction(button) {
 	} else if (button == 'maintainers') {
 		console.log("Making post to maintainers");
 		xhr.open('POST', '/maintainers');
-	} else {
-		console.log("Making post to NOTHING");
-		for (field = 0; field < inputList.length; field++) {
-			urlEncodedDataPairs[inputList[field].name] = inputList[field].value;
-		}
+	}
+	for (field = 0; field < inputList1.length; field++) {
+		urlEncodedDataPairs[inputList1[field].name] = inputList1[field].value;
+	}
+	for (field = 0; field < inputList2.length; field++) {
+		urlEncodedDataPairs[inputList2[field].name] = inputList2[field].value;
 	}
 
 	//var modal = document.getElementById("status-container");
@@ -74,8 +76,8 @@ function submitAction(button) {
 	//		location.reload();
 	//    }, 900, modal);
 	//};
-	//xhr.setRequestHeader('Content-Type', 'application/json')
+	xhr.setRequestHeader('Content-Type', 'application/json')
 
-	//console.log(JSON.stringify(urlEncodedDataPairs));
-	//xhr.send(JSON.stringify(urlEncodedDataPairs));
+	console.log("Encoded Data: " + JSON.stringify(urlEncodedDataPairs));
+	xhr.send(JSON.stringify(urlEncodedDataPairs));
 }

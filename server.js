@@ -153,7 +153,7 @@ function renderHome(request, response) {
 /* ********************
  * Render any content page
 ******************** */
-function renderContentPage(page, titles, data, request, response) {
+function renderContentPage(page, titles, data, cb_data, request, response) {
 	var authorization = checkAuth(request);
 	if (page == "buildings") {
 		var templateArgs = {
@@ -165,6 +165,7 @@ function renderContentPage(page, titles, data, request, response) {
 				{filename: "index.css"},
 				{filename: "building.css"},
 				{filename: "modal.css"},
+				{filename: "status.css"},
 			],
 			loadJs: [
 				{filename: "index.js"},
@@ -190,12 +191,8 @@ function renderContentPage(page, titles, data, request, response) {
 				{
 					inputType: "combobox",
 					label: "Manager",
-					cbData: [
-						{
-							value: "asdf",
-							label: "Asdf",
-						},
-					],
+					name: "manager",
+					cbData: cb_data,
 				},
 			],
 		};
@@ -210,6 +207,7 @@ function renderContentPage(page, titles, data, request, response) {
 				{filename: "index.css"},
 				{filename: "building.css"},
 				{filename: "modal.css"},
+				{filename: "status.css"},
 			],
 			loadJs: [
 				{filename: "index.js"},
@@ -229,6 +227,7 @@ function renderContentPage(page, titles, data, request, response) {
 				{
 					inputType: "combobox",
 					label: "Address",
+					name: "address",
 					cbData: [
 						{
 							value: "Location addr",
@@ -255,6 +254,7 @@ function renderContentPage(page, titles, data, request, response) {
 				{filename: "index.css"},
 				{filename: "building.css"},
 				{filename: "modal.css"},
+				{filename: "status.css"},
 			],
 			loadJs: [
 				{filename: "index.js"},
@@ -280,6 +280,7 @@ function renderContentPage(page, titles, data, request, response) {
 				{
 					inputType: "combobox",
 					label: "Maintenance Company",
+					name: "maintainer",
 					cbData: [
 						{
 							value: "Company Name",
@@ -290,6 +291,7 @@ function renderContentPage(page, titles, data, request, response) {
 				{
 					inputType: "combobox",
 					label: "Location",
+					name: "location",
 					cbData: [
 						{
 							value: "Location ID",
@@ -310,6 +312,7 @@ function renderContentPage(page, titles, data, request, response) {
 				{filename: "index.css"},
 				{filename: "building.css"},
 				{filename: "modal.css"},
+				{filename: "status.css"},
 			],
 			loadJs: [
 				{filename: "index.js"},
@@ -368,6 +371,7 @@ server.get('/login', function(request, response) {
 		loadCss: [
 			{filename: "index.css"},
 			{filename: "login.css"},
+			{filename: "status.css"},
 		],
 		loadJs: [
 			{filename: "index.js"},
@@ -481,8 +485,73 @@ server.post('/register', function(request, response) {
 ******************** */
 server.get('/buildings', function(request, response, next) {
 	getBuildingsData(function(titles, buildingsData) {
-		renderContentPage("buildings", titles, buildingsData, request, response);
+		var cbData = {};
+		var managerData = {}
+		var query = sql.format('SELECT email FROM User WHERE 1');
+		console.log("QUERY: " + query);
+		connection.query(query, function (error, results, fields) {
+			if (error) {
+				console.log("ERROR: " + error);
+				return;
+			}
+			console.log('The results: ', results);
+			convertSelectResultsToArray(results, function(contentArray) {
+				renderContentPage("buildings", titles, buildingsData, contentArray, request, response);
+			});
+		});
 	});
+});
+
+/* ********************
+ * Handle post requests for /buildings
+******************** */
+server.post('/buildings', function(request, response) {
+	console.log("Buildings Data: ");
+	console.log(request.body);
+	console.log(request.body.address);
+	console.log(request.body.name);
+	console.log(request.body.manager);
+
+	response.status(200).end();
+	//var post  = {address: request.body.address, name: request.body.name, manager: request.body.manager};
+	var query = sql.format('INSERT INTO Building SET ?', request.body);
+	connection.query(query, function (error, results, fields) {
+		if (error) {
+			console.log("ERROR: " + error);
+			response.status(401).end();
+			return;
+		} else {
+			console.log('The results: ', results);
+			response.status(200).end();
+		}
+	});
+	//// Do some database stuff
+	//var query = sql.format('SELECT password FROM User WHERE email = ?', [request.body.username]);
+	//console.log("QUERY: " + query);
+	//connection.query(query, function (error, results, fields) {
+	//	if (error) {
+	//		console.log("ERROR: " + error);
+	//		return;
+	//	}
+	//	console.log('The results: ', results);
+	//	console.log("PASS?: " + results[0].password);
+	//	bcrypt.compare(request.body.password, results[0].password, function(err, res) {
+	//		// If they are authorized, set a cookie
+	//		if (res == true) {
+	//			console.log("IT IS TRUE");
+	//			// Now figure out what value to use for the cookie
+	//			var cookieName = "site_auth";
+	//			var toHash = request.body.username + request.body.password;
+	//			bcrypt.hash(toHash, saltRounds, function(err, hash) {
+	//				var cookieValue = hash;
+	//				response.cookie(cookieName, "somerandonstuffs", { maxAge: 900000, httpOnly: true });
+	//				response.status(200).end();
+	//			});
+	//		} else {
+	//		    response.status(401).end();
+	//		}
+	//	});
+	//});
 });
 
 /* ********************
@@ -696,4 +765,30 @@ function parseOutTitlesAndContent(results, content) {
 
 	// Callback to return the data
 	content(title_arr, content_arr);
+}
+
+function convertSelectResultsToArray(results, callback) {
+	var resultsArr = [];
+	for (var index in results) {
+		//console.log("Pushing: ");
+		//console.log(results[index]);
+		//console.log("What is: ");
+		//console.log(Object.keys(results[index]));
+		for (var keyVar in Object.keys(results[index])) {
+			var key = Object.keys(results[index])[keyVar];
+			//console.log("\nKEY");
+			//console.log(key);
+			//console.log("Results index:");
+			//console.log(results[index]);
+			//console.log("Results index key:");
+			var results2 = results[index];
+			//console.log(results2.email);
+			//console.log(results2[key]);
+			//var tmp_obj = {[key]: results[index][key]};
+			var tmp_obj = {label: results[index][key], value: results[index][key]};
+			resultsArr.push(tmp_obj);
+			//resultsArr.push(results[index][key]);
+		}
+	}
+	callback(resultsArr);
 }
