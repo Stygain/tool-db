@@ -80,8 +80,10 @@ function submitAction(button) {
 
 	    // Register a timeout to make it go away in a couple of seconds
 	    setTimeout(function(modal) {
-		modal.style.display = "none";
-	    }, 1500, modal);
+			modal.style.display = "none";
+			window.location.replace("localhost:3000/");
+			location.reload();
+	    }, 900, modal);
 	};
 	xhr.setRequestHeader('Content-Type', 'application/json')
 
