@@ -1,26 +1,26 @@
 <!-- The Modal -->
 <div id="myModal" class="modal">
-  <!-- Modal content -->
-  <div class="modal-content">
-    <div class="modal-header">
-      <span class="close">&times;</span>
-      <h2>{{modalHeader}}</h2>
-    </div>
-    <div class="modal-body">
-	  <form action="javascript:;" onsubmit="submitAction('submitFooter{{modalType}}')" method="post" name="submitFooter{{modalType}}">
-		{{#each modalContentRow}}
-			{{> contentRow}}
-		{{/each}}
-	  </form>
-    </div>
-    <div class="modal-footer">
-		<div class="cancel_b_cont">
-			<button type="button" class="submit">Cancel</button>
+	<!-- Modal content -->
+	<div class="modal-content">
+		<div class="modal-header">
+			<span class="close">&times;</span>
+			<h2>{{modalHeader}}</h2>
 		</div>
-		<div class="submit_b_cont">
-			<button type="submit" class="submit">Submit</button>
-		</div>
-    </div>
-  </div>
+		<form action="javascript:;" onsubmit="submitAction('{{modalType}}')" method="post" name="submitFooter{{modalType}}">
+			<div class="modal-body">
+				{{#each modalContentRow}}
+					{{> contentRow}}
+				{{/each}}
+			</div>
+			<div class="modal-footer">
+				<div class="cancel_b_cont">
+					<button type="button" class="submit">Cancel</button>
+				</div>
+				<div class="submit_b_cont">
+					<button type="submit" class="submit">Submit</button>
+				</div>
+			</div>
+		</form>
+	</div>
 
 </div>
