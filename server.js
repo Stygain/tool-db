@@ -112,9 +112,13 @@ hbs.registerHelper('ifCond', function (v1, operator, v2, options) {
  * Check if the user is authenticated
 ******************** */
 function checkAuth(request) {
+	console.log("Checking authorization");
+	console.log(request.cookies.site_auth);
 	if (request.cookies.site_auth) {
+		console.log("Returning true");
 		return true;
 	}
+	console.log("Returning false");
 	return false;
 }
 
@@ -133,6 +137,7 @@ var sessionChecker = (req, res, next) => {
  * Render the home page
 ******************** */
 function renderHome(request, response) {
+	console.log("Rendering home page");
 	var authorization = checkAuth(request);
 	var templateArgs = {
 		title: "Tools DB",
@@ -154,6 +159,7 @@ function renderHome(request, response) {
  * Render any content page
 ******************** */
 function renderContentPage(page, titles, data, request, response) {
+	console.log("Rendering content page: " + page);
 	var authorization = checkAuth(request);
 	if (page == "buildings") {
 		var query = sql.format('SELECT email FROM User WHERE 1');
@@ -388,8 +394,9 @@ server.get('/', (request, response) => {
  * Handle get requests for /login
 ******************** */
 server.get('/login', function(request, response) {
+	console.log("Rendering login page");
 	var authorization = checkAuth(request);
-	if (authorization) {
+	if (!authorization) {
 		response.redirect('/');
 		return;
 	}
@@ -451,8 +458,9 @@ server.post('/login', function(request, response) {
  * Handle get requests for /register
 ******************** */
 server.get('/register', function(request, response, next) {
+	console.log("Rendering register page");
 	var authorization = checkAuth(request);
-	if (authorization) {
+	if (!authorization) {
 		response.redirect('/');
 		return;
 	}
@@ -514,6 +522,13 @@ server.post('/register', function(request, response) {
  * Handle get requests for /buildings
 ******************** */
 server.get('/buildings', function(request, response, next) {
+	console.log("Rendering buildings page");
+	var authorization = checkAuth(request);
+	if (!authorization) {
+		console.log("In the if statement");
+		response.redirect('/');
+		return;
+	}
 	getBuildingsData(function(titles, buildingsData) {
 		var cbData = {};
 		var managerData = {}
@@ -578,6 +593,12 @@ server.post('/buildings', function(request, response) {
  * Handle get requests for /locations
 ******************** */
 server.get('/locations', function(request, response, next) {
+	console.log("Rendering locations page");
+	var authorization = checkAuth(request);
+	if (!authorization) {
+		response.redirect('/');
+		return;
+	}
 	getLocationsData(function(titles, locationsData) {
 		renderContentPage("locations", titles, locationsData, request, response);
 	});
@@ -587,6 +608,12 @@ server.get('/locations', function(request, response, next) {
  * Handle get requests for /tools
 ******************** */
 server.get('/tools', function(request, response, next) {
+	console.log("Rendering tools page");
+	var authorization = checkAuth(request);
+	if (!authorization) {
+		response.redirect('/');
+		return;
+	}
 	getToolsData(function(titles, toolsData) {
 		renderContentPage("tools", titles, toolsData, request, response);
 	});
@@ -596,6 +623,12 @@ server.get('/tools', function(request, response, next) {
  * Handle get requests for /maintainers
 ******************** */
 server.get('/maintainers', function(request, response, next) {
+	console.log("Rendering maintainers page");
+	var authorization = checkAuth(request);
+	if (!authorization) {
+		response.redirect('/');
+		return;
+	}
 	getMaintainerData(function(titles, maintainersData) {
 		renderContentPage("maintainers", titles, maintainersData, request, response);
 	});
@@ -605,6 +638,12 @@ server.get('/maintainers', function(request, response, next) {
  * Handle get requests for /logout
 ******************** */
 server.get('/logout', function(request, response, next) {
+	console.log("Rendering logout page");
+	var authorization = checkAuth(request);
+	if (!authorization) {
+		response.redirect('/');
+		return;
+	}
 	// Remove the cookie
 	response.clearCookie('site_auth');
 	response.redirect('/');
@@ -796,8 +835,8 @@ function convertSelectResultsToArray(results, callback) {
 		//console.log(Object.keys(results[index]));
 		for (var keyVar in Object.keys(results[index])) {
 			var key = Object.keys(results[index])[keyVar];
-			console.log("\nKEY");
-			console.log(key);
+			//console.log("\nKEY");
+			//console.log(key);
 			//console.log("Results index:");
 			//console.log(results[index]);
 			//console.log("Results index key:");
