@@ -181,6 +181,7 @@ function renderContentPage(page, titles, data, request, response) {
 					loadJs: [
 						{filename: "index.js"},
 						{filename: "modal.js"},
+						{filename: "content.js"},
 					],
 					header: titles,
 					item: data,
@@ -234,6 +235,7 @@ function renderContentPage(page, titles, data, request, response) {
 					loadJs: [
 						{filename: "index.js"},
 						{filename: "modal.js"},
+						{filename: "content.js"},
 					],
 					header: titles,
 					item: data,
@@ -296,6 +298,7 @@ function renderContentPage(page, titles, data, request, response) {
 							loadJs: [
 								{filename: "index.js"},
 								{filename: "modal.js"},
+								{filename: "content.js"},
 							],
 							header: titles,
 							item: data,
@@ -349,6 +352,7 @@ function renderContentPage(page, titles, data, request, response) {
 			loadJs: [
 				{filename: "index.js"},
 				{filename: "modal.js"},
+				{filename: "content.js"},
 			],
 			header: titles,
 			item: data,
@@ -532,7 +536,6 @@ server.post('/buildings', function(request, response) {
 	console.log(request.body.name);
 	console.log(request.body.manager);
 
-	response.status(200).end();
 	//var post  = {address: request.body.address, name: request.body.name, manager: request.body.manager};
 	var query = sql.format('INSERT INTO Building SET ?', request.body);
 	connection.query(query, function (error, results, fields) {
@@ -571,6 +574,28 @@ server.post('/buildings', function(request, response) {
 	//		    response.status(401).end();
 	//		}
 	//	});
+	//});
+});
+
+/* ********************
+ * Handle post requests for /buildings
+******************** */
+server.post('/buildingDelete', function(request, response) {
+	console.log("Buildings Delete Data: ");
+	console.log(request.body);
+
+	response.status(200).end();
+	//var post  = {address: request.body.address, name: request.body.name, manager: request.body.manager};
+	//var query = sql.format('INSERT INTO Building SET ?', request.body);
+	//connection.query(query, function (error, results, fields) {
+	//	if (error) {
+	//		console.log("ERROR: " + error);
+	//		response.status(401).end();
+	//		return;
+	//	} else {
+	//		console.log('The results: ', results);
+	//		response.status(200).end();
+	//	}
 	//});
 });
 
@@ -827,7 +852,7 @@ function convertSelectResultsToArray(results, callback) {
 			//console.log("Results index key:");
 			var results2 = results[index];
 			//console.log(results2.email);
-			console.log(results2[key]);
+			//console.log(results2[key]);
 			//var tmp_obj = {[key]: results[index][key]};
 			var tmpObj = {label: results[index][key], value: results[index][key]};
 			resultsArr.push(tmpObj);
