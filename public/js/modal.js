@@ -59,23 +59,23 @@ function submitAction(button) {
 		urlEncodedDataPairs[inputList2[field].name] = inputList2[field].value;
 	}
 
-	//var modal = document.getElementById("status-container");
-	//xhr.onreadystatechange = function() {
-	//    console.log("STATUS: " + this.status);
-	//    if (this.status == 200) {
-	//	document.getElementById("status").innerHTML = "Success!";
-	//    } else {
-	//	document.getElementById("status").innerHTML = "Failed to authenticate user!";
-	//    }
-	//    modal.style.display = "block";
+	var statusCont = document.getElementById("status-container");
+	xhr.onreadystatechange = function() {
+	    console.log("STATUS: " + this.status);
+		modal.style.display = "none";
+	    if (this.status == 200) {
+			document.getElementById("status").innerHTML = "Success!";
+	    } else {
+			document.getElementById("status").innerHTML = "Failed to authenticate user!";
+	    }
+	    statusCont.style.display = "block";
 
-	//    // Register a timeout to make it go away in a couple of seconds
-	//    setTimeout(function(modal) {
-	//		modal.style.display = "none";
-	//		window.location.replace("localhost:3000/");
-	//		location.reload();
-	//    }, 900, modal);
-	//};
+	    // Register a timeout to make it go away in a couple of seconds
+	    setTimeout(function(statusCont) {
+			statusCont.style.display = "none";
+			location.reload();
+	    }, 900, statusCont);
+	};
 	xhr.setRequestHeader('Content-Type', 'application/json')
 
 	console.log("Encoded Data: " + JSON.stringify(urlEncodedDataPairs));

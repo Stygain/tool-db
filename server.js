@@ -153,50 +153,61 @@ function renderHome(request, response) {
 /* ********************
  * Render any content page
 ******************** */
-function renderContentPage(page, titles, data, cb_data, request, response) {
+function renderContentPage(page, titles, data, request, response) {
 	var authorization = checkAuth(request);
 	if (page == "buildings") {
-		var templateArgs = {
-			title: "Tools DB",
-			nav_title: "Tools DB",
-			loggedIn: authorization,
-			active: "buildings",
-			loadCss: [
-				{filename: "index.css"},
-				{filename: "building.css"},
-				{filename: "modal.css"},
-				{filename: "status.css"},
-			],
-			loadJs: [
-				{filename: "index.js"},
-				{filename: "modal.js"},
-			],
-			header: titles,
-			item: data,
-			modalHeader: "Add New Building",
-			modalType: "buildings",
-			modalContentRow: [
-				{
-					inputType: "text",
-					placeholder: "Address",
-					name: "address",
-					required: true,
-				},
-				{
-					inputType: "text",
-					placeholder: "Name",
-					name: "name",
-					required: true,
-				},
-				{
-					inputType: "combobox",
-					label: "Manager",
-					name: "manager",
-					cbData: cb_data,
-				},
-			],
-		};
-		response.render('contentPage', templateArgs);
+		var query = sql.format('SELECT email FROM User WHERE 1');
+		console.log("QUERY: " + query);
+		connection.query(query, function (error, results, fields) {
+			if (error) {
+				console.log("ERROR: " + error);
+				return;
+			}
+			console.log('The results: ', results);
+			convertSelectResultsToArray(results, function(cbDataArray) {
+				var templateArgs = {
+					title: "Tools DB",
+					nav_title: "Tools DB",
+					loggedIn: authorization,
+					active: "buildings",
+					loadCss: [
+						{filename: "index.css"},
+						{filename: "building.css"},
+						{filename: "modal.css"},
+						{filename: "status.css"},
+					],
+					loadJs: [
+						{filename: "index.js"},
+						{filename: "modal.js"},
+					],
+					header: titles,
+					item: data,
+					modalHeader: "Add New Building",
+					modalType: "buildings",
+					modalContentRow: [
+						{
+							inputType: "text",
+							placeholder: "Address",
+							name: "address",
+							required: true,
+						},
+						{
+							inputType: "text",
+							placeholder: "Name",
+							name: "name",
+							required: true,
+						},
+						{
+							inputType: "combobox",
+							label: "Manager",
+							name: "manager",
+							cbData: cbDataArray,
+						},
+					],
+				};
+				response.render('contentPage', templateArgs);
+			});
+		});
 	} else if (page == "locations") {
 		var templateArgs = {
 			title: "Tools DB",
@@ -487,18 +498,8 @@ server.get('/buildings', function(request, response, next) {
 	getBuildingsData(function(titles, buildingsData) {
 		var cbData = {};
 		var managerData = {}
-		var query = sql.format('SELECT email FROM User WHERE 1');
-		console.log("QUERY: " + query);
-		connection.query(query, function (error, results, fields) {
-			if (error) {
-				console.log("ERROR: " + error);
-				return;
-			}
-			console.log('The results: ', results);
-			convertSelectResultsToArray(results, function(contentArray) {
-				renderContentPage("buildings", titles, buildingsData, contentArray, request, response);
-			});
-		});
+
+		renderContentPage("buildings", titles, buildingsData, request, response);
 	});
 });
 
