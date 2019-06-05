@@ -66,7 +66,7 @@ function submitAction(button) {
 		if (this.status == 200) {
 			document.getElementById("status").innerHTML = "Success!";
 		} else {
-			document.getElementById("status").innerHTML = "Failed to authenticate user!";
+			document.getElementById("status").innerHTML = "Error adding data!";
 		}
 		statusCont.style.display = "block";
 

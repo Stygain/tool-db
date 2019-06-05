@@ -151,6 +151,47 @@ function renderHome(request, response) {
 	response.render('homePage', templateArgs);
 };
 
+function renderAccordionPage(page, data, request, response) {
+	console.log("Rendering accordion page: " + page);
+	var authorization = checkAuth(request);
+	if (page == "pageName") {
+		var templateArgs = {
+			title: "Accordion",
+			nav_title: "Tools DB",
+			loggedIn: authorization,
+			active: "overview",
+			loadCss: [
+				{filename: "index.css"},
+				{filename: "accordion.css"},
+			],
+			loadJs: [
+				{filename: "index.js"},
+				{filename: "accordion.js"},
+			],
+			accordionData: [
+				{
+					title: "title1",
+					data: [
+						{
+							title: "subtitle1",
+							data: [
+								{content: "asdf"},
+								{content: "1234"},
+							],
+							title: "subtitle2",
+							data: [
+								{content: "asdf"},
+								{content: "1234"},
+							],
+						},
+					],
+				},
+			],
+		};
+		response.render('accordionPage', templateArgs);
+	}
+};
+
 /* ********************
  * Render any content page
 ******************** */
@@ -176,11 +217,13 @@ function renderContentPage(page, titles, data, request, response) {
 						{filename: "contentPage.css"},
 						{filename: "modal.css"},
 						{filename: "status.css"},
+						{filename: "accordion.css"},
 					],
 					loadJs: [
 						{filename: "index.js"},
 						{filename: "modal.js"},
 						{filename: "content.js"},
+						{filename: "accordion.js"},
 					],
 					header: titles,
 					item: data,
@@ -211,7 +254,7 @@ function renderContentPage(page, titles, data, request, response) {
 			});
 		});
 	} else if (page == "locations") {
-		var query = sql.format('SELECT address FROM Location WHERE 1');
+		var query = sql.format('SELECT address FROM Building WHERE 1');
 		console.log("QUERY: " + query);
 		connection.query(query, function (error, results, fields) {
 			if (error) {
@@ -640,7 +683,7 @@ server.post('/tools', function(request, response) {
 	console.log("Tools Data: ");
 	console.log(request.body);
 
-	var queryData = {TID: request.body.tid, name: request.body.name, name: request.body.maintainer};
+	var queryData = {TID: request.body.tid, name: request.body.name, "business name": request.body.maintainer};
 	var query = sql.format('INSERT INTO Tool SET ?', queryData);
 	console.log("Query: " + query);
 	connection.query(query, function (error, results, fields) {
@@ -671,7 +714,7 @@ server.post('/toolDelete', function(request, response) {
 	console.log("Tool Delete Data: ");
 	console.log(request.body);
 
-	var query = sql.format('DELETE FROM Tool WHERE TID = ?', request.body.tid);
+	var query = sql.format('DELETE FROM Tool WHERE TID = ?', request.body.TID);
 	console.log("Query: " + query);
 	connection.query(query, function (error, results, fields) {
 		if (error) {
@@ -754,6 +797,20 @@ server.get('/logout', function(request, response, next) {
 	response.clearCookie('site_auth');
 	response.redirect('/');
 });
+
+/* ********************
+ * Handle get requests for /accordion
+******************** */
+server.get('/accordion', function(request, response, next) {
+	console.log("Rendering accordion page");
+	var authorization = checkAuth(request);
+	if (!authorization) {
+		response.redirect('/login');
+		return;
+	}
+	renderAccordionPage("pageName", "", request, response);
+});
+
 
 /* ********************
  * Serve any sort of file the user requests
