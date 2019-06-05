@@ -6,9 +6,6 @@ for (var i = 0; i < delBtns.length; i++) {
 	delBtns[i].addEventListener('click', clickHandler, false);
 	delBtns[i].index = i;
 }
-//for (var index in delBtns) {
-//	delBtns[index].addEventListener("click", clickHandler);
-//}
 
 function clickHandler(event) {
 	var field;
@@ -55,8 +52,23 @@ function clickHandler(event) {
 		return false;
 	}
 
-	console.log("Making post to delete");
-	xhr.open('POST', '/buildingDelete');
+	console.log("Page:");
+	var title = document.getElementsByTagName("title")[0].innerHTML;
+	console.log(title);
+
+	if (title == "Buildings") {
+	    console.log("Making post to building delete");
+	    xhr.open('POST', '/buildingDelete');
+	} else if (title == "Locations") {
+	    console.log("Making post to location delete");
+	    xhr.open('POST', '/locationDelete');
+	} else if (title == "Tools") {
+	    console.log("Making post to tool delete");
+	    xhr.open('POST', '/toolDelete');
+	} else if (title == "Maintenance Company") {
+	    console.log("Making post to maintainer delete");
+	    xhr.open('POST', '/maintainerDelete');
+	}
 	for (field = 0; field < rowTds.length - 1; field++) {
 		console.log(rowTds[field]);
 		console.log(rowTds[field].innerHTML);
@@ -71,13 +83,13 @@ function clickHandler(event) {
 	    } else {
 			document.getElementById("status").innerHTML = "Failed to remove row!";
 	    }
-		statusCont.style.display = "block";
+	    statusCont.style.display = "block";
 
-	    // Register a timeout to make it go away in a couple of seconds
-	    setTimeout(function(statusCont) {
-			statusCont.style.display = "none";
-			location.reload();
-	    }, 900, statusCont);
+	    //// Register a timeout to make it go away in a couple of seconds
+	    //setTimeout(function(statusCont) {
+	    //    	statusCont.style.display = "none";
+	    //    	location.reload();
+	    //}, 900, statusCont);
 	};
 	xhr.setRequestHeader('Content-Type', 'application/json')
 

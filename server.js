@@ -136,7 +136,7 @@ function renderHome(request, response) {
 	console.log("Rendering home page");
 	var authorization = checkAuth(request);
 	var templateArgs = {
-		title: "Tools DB",
+		title: "Tools DB - Home",
 		nav_title: "Tools DB",
 		active: "home",
 		loggedIn: authorization,
@@ -167,7 +167,7 @@ function renderContentPage(page, titles, data, request, response) {
 			}
 			convertSelectResultsToArray(results, function(cbDataArray) {
 				var templateArgs = {
-					title: "Tools DB",
+					title: "Buildings",
 					nav_title: "Tools DB",
 					loggedIn: authorization,
 					active: "buildings",
@@ -220,7 +220,7 @@ function renderContentPage(page, titles, data, request, response) {
 			}
 			convertSelectResultsToArray(results, function(cbDataArray) {
 				var templateArgs = {
-					title: "Tools DB",
+					title: "Locations",
 					nav_title: "Tools DB",
 					loggedIn: authorization,
 					active: "locations",
@@ -264,7 +264,7 @@ function renderContentPage(page, titles, data, request, response) {
 			});
 		});
 	} else if (page == "tools") {
-		var query = sql.format('SELECT `business name` FROM `Maintenance Company` WHERE 1');
+		var query = sql.format('SELECT name FROM `Maintenance Company` WHERE 1');
 		console.log("QUERY: " + query);
 		connection.query(query, function (error, results, fields) {
 			if (error) {
@@ -281,7 +281,7 @@ function renderContentPage(page, titles, data, request, response) {
 					}
 					convertSelectResultsToArray(results, function(locationCbDataArray) {
 						var templateArgs = {
-							title: "Tools DB",
+							title: "Tools",
 							nav_title: "Tools DB",
 							loggedIn: authorization,
 							active: "tools",
@@ -334,7 +334,7 @@ function renderContentPage(page, titles, data, request, response) {
 		});
 	} else if (page == "maintainers") {
 		var templateArgs = {
-			title: "Tools DB",
+			title: "Maintenance Company",
 			nav_title: "Tools DB",
 			loggedIn: authorization,
 			active: "maintainers",
@@ -357,7 +357,7 @@ function renderContentPage(page, titles, data, request, response) {
 				{
 					inputType: "text",
 					placeholder: "Business Name",
-					name: "business name",
+					name: "name",
 					required: true,
 				},
 				{
@@ -396,7 +396,7 @@ server.get('/login', function(request, response) {
 	}
 	console.log("Rendering login page");
 	var templateArgs = {
-		title: "Title",
+		title: "Tools DB - Home",
 		nav_title: "Tools DB",
 		active: "login",
 		login: true,
@@ -452,7 +452,7 @@ server.post('/login', function(request, response) {
 server.get('/register', function(request, response, next) {
 	console.log("Rendering register page");
 	var templateArgs = {
-		title: "Title",
+		title: "Tools DB - Register",
 		nav_title: "Tools DB",
 		active: "register",
 		login: false,
@@ -640,7 +640,7 @@ server.post('/tools', function(request, response) {
 	console.log("Tools Data: ");
 	console.log(request.body);
 
-	var queryData = {TID: request.body.tid, name: request.body.name, "business name": request.body.maintainer};
+	var queryData = {TID: request.body.tid, name: request.body.name, name: request.body.maintainer};
 	var query = sql.format('INSERT INTO Tool SET ?', queryData);
 	console.log("Query: " + query);
 	connection.query(query, function (error, results, fields) {
@@ -671,17 +671,17 @@ server.post('/toolDelete', function(request, response) {
 	console.log("Tool Delete Data: ");
 	console.log(request.body);
 
-	response.status(401).end();
-	//var query = sql.format('DELETE FROM Building WHERE address = ?', request.body.address);
-	//connection.query(query, function (error, results, fields) {
-	//	if (error) {
-	//		console.log("ERROR: " + error);
-	//		response.status(401).end();
-	//		return;
-	//	} else {
-	//		response.status(200).end();
-	//	}
-	//});
+	var query = sql.format('DELETE FROM Tool WHERE TID = ?', request.body.tid);
+	console.log("Query: " + query);
+	connection.query(query, function (error, results, fields) {
+		if (error) {
+			console.log("ERROR: " + error);
+			response.status(401).end();
+			return;
+		} else {
+			response.status(200).end();
+		}
+	});
 });
 
 /* ********************
@@ -706,7 +706,9 @@ server.post('/maintainers', function(request, response) {
 	console.log("Maintainers Data: ");
 	console.log(request.body);
 
-	var query = sql.format('INSERT INTO `Maintenance Company` SET ?', request.body);
+	var queryData = {name: request.body.name, phone: request.body.phone, email: request.body.email};
+	var query = sql.format('INSERT INTO `Maintenance Company` SET ?', queryData);
+	console.log("Query: " + query);
 	connection.query(query, function (error, results, fields) {
 		if (error) {
 			console.log("ERROR: " + error);
@@ -725,17 +727,17 @@ server.post('/maintainerDelete', function(request, response) {
 	console.log("Maintainer Delete Data: ");
 	console.log(request.body);
 
-	response.status(401).end();
-	//var query = sql.format('DELETE FROM Building WHERE address = ?', request.body.address);
-	//connection.query(query, function (error, results, fields) {
-	//	if (error) {
-	//		console.log("ERROR: " + error);
-	//		response.status(401).end();
-	//		return;
-	//	} else {
-	//		response.status(200).end();
-	//	}
-	//});
+	var query = sql.format('DELETE FROM `Maintenance Company` WHERE name = ?', request.body.name);
+	console.log("Query: " + query);
+	connection.query(query, function (error, results, fields) {
+		if (error) {
+			console.log("ERROR: " + error);
+			response.status(401).end();
+			return;
+		} else {
+			response.status(200).end();
+		}
+	});
 });
 
 /* ********************
