@@ -74,10 +74,10 @@ function clickHandler(event) {
 		statusCont.style.display = "block";
 
 	    // Register a timeout to make it go away in a couple of seconds
-	    setTimeout(function(modal) {
+	    setTimeout(function(statusCont) {
 			statusCont.style.display = "none";
 			location.reload();
-	    }, 900, modal);
+	    }, 900, statusCont);
 	};
 	xhr.setRequestHeader('Content-Type', 'application/json')
 
