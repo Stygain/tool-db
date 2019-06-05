@@ -165,7 +165,6 @@ function renderContentPage(page, titles, data, request, response) {
 				console.log("ERROR: " + error);
 				return;
 			}
-			console.log('The results: ', results);
 			convertSelectResultsToArray(results, function(cbDataArray) {
 				var templateArgs = {
 					title: "Tools DB",
@@ -219,7 +218,6 @@ function renderContentPage(page, titles, data, request, response) {
 				console.log("ERROR: " + error);
 				return;
 			}
-			console.log('The results: ', results);
 			convertSelectResultsToArray(results, function(cbDataArray) {
 				var templateArgs = {
 					title: "Tools DB",
@@ -273,7 +271,6 @@ function renderContentPage(page, titles, data, request, response) {
 				console.log("ERROR: " + error);
 				return;
 			}
-			console.log('The results: ', results);
 			convertSelectResultsToArray(results, function(maintainerCbDataArray) {
 				query = sql.format('SELECT ID FROM Location WHERE 1');
 				console.log("QUERY: " + query);
@@ -282,7 +279,6 @@ function renderContentPage(page, titles, data, request, response) {
 						console.log("ERROR: " + error);
 						return;
 					}
-					console.log('The results: ', results);
 					convertSelectResultsToArray(results, function(locationCbDataArray) {
 						var templateArgs = {
 							title: "Tools DB",
@@ -394,6 +390,11 @@ server.get('/', (request, response) => {
  * Handle get requests for /login
 ******************** */
 server.get('/login', function(request, response) {
+	var authorization = checkAuth(request);
+	if (authorization) {
+		response.redirect('/');
+		return;
+	}
 	console.log("Rendering login page");
 	var templateArgs = {
 		title: "Title",
@@ -427,7 +428,6 @@ server.post('/login', function(request, response) {
 			console.log("ERROR: " + error);
 			return;
 		}
-		console.log('The results: ', results);
 		bcrypt.compare(request.body.password, results[0].password, function(err, res) {
 			// If they are authorized, set a cookie
 			if (res == true) {
@@ -460,6 +460,7 @@ server.get('/register', function(request, response, next) {
 		loadCss: [
 			{filename: "index.css"},
 			{filename: "login.css"},
+			{filename: "status.css"},
 		],
 		loadJs: [
 			{filename: "index.js"},
@@ -499,7 +500,6 @@ server.post('/register', function(request, response) {
 				response.status(401).end();
 				return;
 			} else {
-			    console.log('The results: ', results);
 			    response.status(200).end();
 			}
 		});
@@ -541,7 +541,6 @@ server.post('/buildings', function(request, response) {
 			response.status(401).end();
 			return;
 		} else {
-			console.log('The results: ', results);
 			response.status(200).end();
 		}
 	});
@@ -551,22 +550,19 @@ server.post('/buildings', function(request, response) {
  * Handle post requests for /buildings
 ******************** */
 server.post('/buildingDelete', function(request, response) {
-	console.log("Buildings Delete Data: ");
+	console.log("Building Delete Data: ");
 	console.log(request.body);
 
-	response.status(200).end();
-	//var post  = {address: request.body.address, name: request.body.name, manager: request.body.manager};
-	//var query = sql.format('INSERT INTO Building SET ?', request.body);
-	//connection.query(query, function (error, results, fields) {
-	//	if (error) {
-	//		console.log("ERROR: " + error);
-	//		response.status(401).end();
-	//		return;
-	//	} else {
-	//		console.log('The results: ', results);
-	//		response.status(200).end();
-	//	}
-	//});
+	var query = sql.format('DELETE FROM Building WHERE address = ?', request.body.address);
+	connection.query(query, function (error, results, fields) {
+		if (error) {
+			console.log("ERROR: " + error);
+			response.status(401).end();
+			return;
+		} else {
+			response.status(200).end();
+		}
+	});
 });
 
 /* ********************
@@ -816,7 +812,6 @@ function convertSelectResultsToArray(results, callback) {
 			resultsArr.push(tmpObj);
 		}
 	}
-	console.log("The array:");
-	console.log(resultsArr);
+
 	callback(resultsArr);
 }

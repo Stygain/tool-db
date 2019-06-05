@@ -66,19 +66,17 @@ function clickHandler(event) {
 	var modal = document.getElementById("status-container");
 	xhr.onreadystatechange = function() {
 	    console.log("STATUS: " + this.status);
-	    //if (this.status == 200) {
-		//document.getElementById("status").innerHTML = "Success!";
-	    //} else {
-		//document.getElementById("status").innerHTML = "Failed to authenticate user!";
-	    //}
-	    //modal.style.display = "block";
+	    if (this.status == 200) {
+			document.getElementById("status").innerHTML = "Success!";
+	    } else {
+			document.getElementById("status").innerHTML = "Failed to remove row!";
+	    }
 
-	    //// Register a timeout to make it go away in a couple of seconds
-	    //setTimeout(function(modal) {
-		//	modal.style.display = "none";
-		//	window.location.replace("localhost:3000/");
-		//	location.reload();
-	    //}, 900, modal);
+	    // Register a timeout to make it go away in a couple of seconds
+	    setTimeout(function(modal) {
+			modal.style.display = "none";
+			location.reload();
+	    }, 900, modal);
 	};
 	xhr.setRequestHeader('Content-Type', 'application/json')
 

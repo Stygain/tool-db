@@ -35,8 +35,6 @@ function changeActiveCard(new_active, old_active) {
 }
 
 function submitAction(button) {
-	console.log("RECEIVED button press");
-
 	// AJAX Request
 	xhr = new XMLHttpRequest();
 
@@ -68,19 +66,19 @@ function submitAction(button) {
 	}
 
 	var modal = document.getElementById("status-container");
-	// TODO Figure out why this doesn't work for the register
 	xhr.onreadystatechange = function() {
 	    console.log("STATUS: " + this.status);
 	    if (this.status == 200) {
-		document.getElementById("status").innerHTML = "Success!";
+			document.getElementById("status").innerHTML = "Success!";
 	    } else {
-		document.getElementById("status").innerHTML = "Failed to create user!";
+			document.getElementById("status").innerHTML = "Failed to authenticate user!";
 	    }
 	    modal.style.display = "block";
 
 	    // Register a timeout to make it go away in a couple of seconds
 	    setTimeout(function(modal) {
 			modal.style.display = "none";
+			location.reload();
 	    }, 900, modal);
 	};
 	xhr.setRequestHeader('Content-Type', 'application/json')
