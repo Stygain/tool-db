@@ -65,7 +65,7 @@ function submitAction(button) {
 		}
 	}
 
-	var modal = document.getElementById("status-container");
+	var statusCont = document.getElementById("status-container");
 	xhr.onreadystatechange = function() {
 	    console.log("STATUS: " + this.status);
 	    if (this.status == 200) {
@@ -73,11 +73,11 @@ function submitAction(button) {
 	    } else {
 			document.getElementById("status").innerHTML = "Failed to authenticate user!";
 	    }
-	    modal.style.display = "block";
+	    statusCont.style.display = "block";
 
 	    // Register a timeout to make it go away in a couple of seconds
 	    setTimeout(function(modal) {
-			modal.style.display = "none";
+			statusCont.style.display = "none";
 			location.reload();
 	    }, 900, modal);
 	};

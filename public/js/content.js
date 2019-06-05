@@ -63,7 +63,7 @@ function clickHandler(event) {
 		urlEncodedDataPairs[headers[field]] = rowTds[field].innerHTML;
 	}
 
-	var modal = document.getElementById("status-container");
+	var statusCont = document.getElementById("status-container");
 	xhr.onreadystatechange = function() {
 	    console.log("STATUS: " + this.status);
 	    if (this.status == 200) {
@@ -71,10 +71,11 @@ function clickHandler(event) {
 	    } else {
 			document.getElementById("status").innerHTML = "Failed to remove row!";
 	    }
+		statusCont.style.display = "block";
 
 	    // Register a timeout to make it go away in a couple of seconds
 	    setTimeout(function(modal) {
-			modal.style.display = "none";
+			statusCont.style.display = "none";
 			location.reload();
 	    }, 900, modal);
 	};
