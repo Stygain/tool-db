@@ -63,18 +63,18 @@ function submitAction(button) {
 	xhr.onreadystatechange = function() {
 	    console.log("STATUS: " + this.status);
 		modal.style.display = "none";
-	    if (this.status == 200) {
+		if (this.status == 200) {
 			document.getElementById("status").innerHTML = "Success!";
-	    } else {
+		} else {
 			document.getElementById("status").innerHTML = "Failed to authenticate user!";
-	    }
-	    statusCont.style.display = "block";
+		}
+		statusCont.style.display = "block";
 
-	    // Register a timeout to make it go away in a couple of seconds
-	    setTimeout(function(statusCont) {
-			statusCont.style.display = "none";
-			location.reload();
-	    }, 900, statusCont);
+		// Register a timeout to make it go away in a couple of seconds
+		setTimeout(function(statusCont) {
+			    statusCont.style.display = "none";
+			    location.reload();
+		}, 900, statusCont);
 	};
 	xhr.setRequestHeader('Content-Type', 'application/json')
 
