@@ -470,6 +470,12 @@ server.post('/login', function(request, response) {
 			console.log("ERROR: " + error);
 			return;
 		}
+		console.log("Results");
+		console.log(results);
+		if (results.length == 0) {
+			response.status(401).end();
+			return;
+		}
 		bcrypt.compare(request.body.password, results[0].password, function(err, res) {
 			// If they are authorized, set a cookie
 			if (res == true) {
