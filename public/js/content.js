@@ -65,6 +65,9 @@ function clickHandler(event) {
 	} else if (title == "Tools") {
 	    console.log("Making post to tool delete");
 	    xhr.open('POST', '/toolDelete');
+	} else if (title == "Contains") {
+	    console.log("Making post to contains delete");
+	    xhr.open('POST', '/containsDelete');
 	} else if (title == "Maintenance Company") {
 	    console.log("Making post to maintainer delete");
 	    xhr.open('POST', '/maintainerDelete');
@@ -77,19 +80,19 @@ function clickHandler(event) {
 
 	var statusCont = document.getElementById("status-container");
 	xhr.onreadystatechange = function() {
-	    console.log("STATUS: " + this.status);
-	    if (this.status == 200) {
+		console.log("STATUS: " + this.status);
+		if (this.status == 200) {
 			document.getElementById("status").innerHTML = "Success!";
-	    } else {
+		} else {
 			document.getElementById("status").innerHTML = "Failed to remove row!";
-	    }
-	    statusCont.style.display = "block";
+		}
+		statusCont.style.display = "block";
 
-	    // Register a timeout to make it go away in a couple of seconds
-	    setTimeout(function(statusCont) {
+		// Register a timeout to make it go away in a couple of seconds
+		setTimeout(function(statusCont) {
 	        	statusCont.style.display = "none";
 	        	location.reload();
-	    }, 900, statusCont);
+		}, 900, statusCont);
 	};
 	xhr.setRequestHeader('Content-Type', 'application/json')
 

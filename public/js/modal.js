@@ -7,6 +7,8 @@ var btn = document.getElementById("fab_btn");
 // Get the <span> element that closes the modal
 var span = document.getElementsByClassName("close")[0];
 
+var cancel = document.getElementById("cancel");
+
 // When the user clicks the button, open the modal 
 btn.onclick = function() {
 	modal.style.display = "flex";
@@ -14,6 +16,11 @@ btn.onclick = function() {
 
 // When the user clicks on <span> (x), close the modal
 span.onclick = function() {
+	modal.style.display = "none";
+}
+
+// When the user clicks on the cancel button, close the modal
+cancel.onclick = function() {
 	modal.style.display = "none";
 }
 
@@ -48,6 +55,9 @@ function submitAction(button) {
 	} else if (button == 'tools') {
 		console.log("Making post to tools");
 		xhr.open('POST', '/tools');
+	} else if (button == 'contains') {
+		console.log("Making post to contains");
+		xhr.open('POST', '/contains');
 	} else if (button == 'maintainers') {
 		console.log("Making post to maintainers");
 		xhr.open('POST', '/maintainers');
