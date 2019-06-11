@@ -414,6 +414,63 @@ function renderContentPage(page, titles, data, request, response) {
 				});
 			});
 		});
+	} else if (page == "contains") {
+		var query = sql.format('SELECT tid FROM Tool WHERE 1');
+		console.log("QUERY: " + query);
+		connection.query(query, function (error, results, fields) {
+			if (error) {
+				console.log("ERROR: " + error);
+				return;
+			}
+			convertSelectResultsToArray(results, function(toolCbDataArray) {
+				query = sql.format('SELECT ID FROM Location WHERE 1');
+				console.log("QUERY: " + query);
+				connection.query(query, function (error, results, fields) {
+					if (error) {
+						console.log("ERROR: " + error);
+						return;
+					}
+					convertSelectResultsToArray(results, function(locationCbDataArray) {
+						var templateArgs = {
+							title: "Contains",
+							nav_title: "Tools DB",
+							loggedIn: authorization,
+							active: "contains",
+							loadCss: [
+								{filename: "index.css"},
+								{filename: "contentPage.css"},
+								{filename: "modal.css"},
+								{filename: "status.css"},
+							],
+							loadJs: [
+								{filename: "index.js"},
+								{filename: "modal.js"},
+								{filename: "content.js"},
+							],
+							header: titles,
+							item: data,
+							modalHeader: "Add New Relation",
+							modalType: "contains",
+							modalContentRow: [
+								{
+									inputType: "combobox",
+									label: "Location ID",
+									name: "lid",
+									cbData: locationCbDataArray,
+								},
+								{
+									inputType: "combobox",
+									label: "Tool",
+									name: "tid",
+									cbData: toolCbDataArray,
+								},
+							],
+						};
+						response.render('contentPage', templateArgs);
+					});
+				});
+			});
+		});
 	} else if (page == "maintainers") {
 		var templateArgs = {
 			title: "Maintenance Company",
@@ -765,6 +822,62 @@ server.post('/toolDelete', function(request, response) {
 });
 
 /* ********************
+ * Handle get requests for /contains
+ ******************** */
+server.get('/contains', function(request, response, next) {
+	console.log("Rendering contains page");
+	var authorization = checkAuth(request);
+	if (!authorization) {
+		response.redirect('/login');
+		return;
+	}
+	getContainsData(function(titles, containsData) {
+		renderContentPage("contains", titles, containsData, request, response);
+	});
+});
+
+/* ********************
+ * Handle post requests for /contains
+ ******************** */
+server.post('/contains', function(request, response) {
+	console.log("Contains Data: ");
+	console.log(request.body);
+
+	var queryData = {ID: request.body.lid, TID: request.body.tid};
+	var query = sql.format('INSERT INTO Contains SET ?', queryData);
+	console.log("Query: " + query);
+	connection.query(query, function (error, results, fields) {
+		if (error) {
+			console.log("ERROR: " + error);
+			response.status(401).end();
+			return;
+		} else {
+			response.status(200).end();
+		}
+	});
+});
+
+/* ********************
+ * Handle post requests for /containsDelete
+ ******************** */
+server.post('/containsDelete', function(request, response) {
+	console.log("Contains Delete Data: ");
+	console.log(request.body);
+
+	var query = sql.format('DELETE FROM Contains WHERE TID = ? AND ID = ?', [request.body.TID, request.body.ID]);
+	console.log("Query: " + query);
+	connection.query(query, function (error, results, fields) {
+		if (error) {
+			console.log("ERROR: " + error);
+			response.status(401).end();
+			return;
+		} else {
+			response.status(200).end();
+		}
+	});
+});
+
+/* ********************
  * Handle get requests for /maintainers
 ******************** */
 server.get('/maintainers', function(request, response, next) {
@@ -972,6 +1085,27 @@ function getBuildingsAndLocationsData(content) {
 		parseOutContentBuildingsAndLocations(results, function(parsedContent) {
 			// Callback to return the data
 			content(parsedContent);
+		});
+	});
+}
+
+/* ********************
+ * Query the DB to get the contains table data and construct the response JSO for handlebars
+ ******************** */
+function getContainsData(content) {
+	// Generate the select statement
+	var query = sql.format('SELECT * FROM Contains WHERE 1');
+
+	// Execute the select statement
+	connection.query(query, function (error, results, fields) {
+		// Pass the error back if present
+		if (error) {
+			console.log("ERROR: " + error);
+			return;
+		}
+		parseOutTitlesAndContent(results, function(titles, parsedContent) {
+			// Callback to return the data
+			content(titles, parsedContent);
 		});
 	});
 }
