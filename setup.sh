@@ -13,3 +13,4 @@ npm install express-session
 npm install mysql
 npm install bcrypt
 npm install cookie-parser
+npm install forever
