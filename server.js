@@ -54,19 +54,19 @@ var connection;
  * Database continual-connection
 ******************** */
 function handleDisconnect() {
-	console.log('1. connecting to db:');
+	//console.log('1. connecting to db:');
 	// CONFIG CHANGE USERNAME AND PASSWORD
 	connection = sql.createConnection('mysql://cs340_bartonad:potato@classmysql.engr.oregonstate.edu/cs340_bartonad');
 
 	connection.connect(function(err) {
 		if (err) {
-			console.log('2. error when connecting to db:', err);
+			//console.log('2. error when connecting to db:', err);
 			setTimeout(handleDisconnect, 1000);
 		}
-		console.log("Connected!");
+		//console.log("Connected!");
 	});
 	connection.on('error', function(err) {
-		console.log('3. db error', err);
+		//console.log('3. db error', err);
 		if (err.code === 'PROTOCOL_CONNECTION_LOST') {
 			handleDisconnect();
 		} else {
@@ -154,7 +154,48 @@ function renderHome(request, response) {
 function renderAccordionPage(page, data, request, response) {
 	console.log("Rendering accordion page: " + page);
 	var authorization = checkAuth(request);
-	if (page == "pageName") {
+	if (page == "locations_and_tools") {
+		var templateArgs = {
+			title: "Locations and Tools",
+			nav_title: "Tools DB",
+			loggedIn: authorization,
+			active: "locations_and_tools",
+			loadCss: [
+				{filename: "index.css"},
+				{filename: "accordion.css"},
+			],
+			loadJs: [
+				{filename: "index.js"},
+				{filename: "accordion.js"},
+			],
+			accordionData: data,
+		};
+		response.render('accordionPage', templateArgs);
+	} else if (page == "buildings_and_locations") {
+		var templateArgs = {
+			title: "Buildings and Locations",
+			nav_title: "Tools DB",
+			loggedIn: authorization,
+			active: "buildings_and_locations",
+			loadCss: [
+				{filename: "index.css"},
+				{filename: "accordion.css"},
+			],
+			loadJs: [
+				{filename: "index.js"},
+				{filename: "accordion.js"},
+			],
+			accordionData: data,
+		};
+		response.render('accordionPage', templateArgs);
+	}
+};
+
+
+function renderSubAccordionPage(page, data, request, response) {
+	console.log("Rendering sub accordion page: " + page);
+	var authorization = checkAuth(request);
+	if (page == "locations_and_tools") {
 		var templateArgs = {
 			title: "Accordion",
 			nav_title: "Tools DB",
@@ -217,13 +258,11 @@ function renderContentPage(page, titles, data, request, response) {
 						{filename: "contentPage.css"},
 						{filename: "modal.css"},
 						{filename: "status.css"},
-						{filename: "accordion.css"},
 					],
 					loadJs: [
 						{filename: "index.js"},
 						{filename: "modal.js"},
 						{filename: "content.js"},
-						{filename: "accordion.js"},
 					],
 					header: titles,
 					item: data,
@@ -375,63 +414,6 @@ function renderContentPage(page, titles, data, request, response) {
 				});
 			});
 		});
-	} else if (page == "contains") {
-		var query = sql.format('SELECT tid FROM Tool WHERE 1');
-		console.log("QUERY: " + query);
-		connection.query(query, function (error, results, fields) {
-			if (error) {
-				console.log("ERROR: " + error);
-				return;
-			}
-			convertSelectResultsToArray(results, function(toolCbDataArray) {
-				query = sql.format('SELECT ID FROM Location WHERE 1');
-				console.log("QUERY: " + query);
-				connection.query(query, function (error, results, fields) {
-					if (error) {
-						console.log("ERROR: " + error);
-						return;
-					}
-					convertSelectResultsToArray(results, function(locationCbDataArray) {
-						var templateArgs = {
-							title: "Contains",
-							nav_title: "Tools DB",
-							loggedIn: authorization,
-							active: "contains",
-							loadCss: [
-								{filename: "index.css"},
-								{filename: "contentPage.css"},
-								{filename: "modal.css"},
-								{filename: "status.css"},
-							],
-							loadJs: [
-								{filename: "index.js"},
-								{filename: "modal.js"},
-								{filename: "content.js"},
-							],
-							header: titles,
-							item: data,
-							modalHeader: "Add New Relation",
-							modalType: "contains",
-							modalContentRow: [
-								{
-									inputType: "combobox",
-									label: "Location ID",
-									name: "lid",
-									cbData: locationCbDataArray,
-								},
-								{
-									inputType: "combobox",
-									label: "Tool",
-									name: "tid",
-									cbData: toolCbDataArray,
-								},
-							],
-						};
-						response.render('contentPage', templateArgs);
-					});
-				});
-			});
-		});
 	} else if (page == "maintainers") {
 		var templateArgs = {
 			title: "Maintenance Company",
@@ -517,8 +499,6 @@ server.get('/login', function(request, response) {
  * Handle post requests for /login
 ******************** */
 server.post('/login', function(request, response) {
-	console.log("Username: " + request.body.username);
-
 	// Do some database stuff
 	var query = sql.format('SELECT password FROM User WHERE email = ?', [request.body.username]);
 	console.log("QUERY: " + query);
@@ -527,8 +507,6 @@ server.post('/login', function(request, response) {
 			console.log("ERROR: " + error);
 			return;
 		}
-		console.log("Results");
-		console.log(results);
 		if (results.length == 0) {
 			response.status(401).end();
 			return;
@@ -579,10 +557,6 @@ server.get('/register', function(request, response, next) {
  * Handle post requests for /register
 ******************** */
 server.post('/register', function(request, response) {
-	//console.log("Request username: " + request.body.username);
-	//console.log("Request password: " + request.body.password);
-	//console.log("Reentered password: " + request.body.reenterPassword);
-
 	if (request.body.password != request.body.reenterPassword) {
 		console.log("User passwords did not match");
 		response.status(401).end();
@@ -633,11 +607,11 @@ server.get('/buildings', function(request, response, next) {
  * Handle post requests for /buildings
 ******************** */
 server.post('/buildings', function(request, response) {
-	console.log("Buildings Data: ");
-	console.log(request.body);
-	console.log(request.body.address);
-	console.log(request.body.name);
-	console.log(request.body.manager);
+	//console.log("Buildings Data: ");
+	//console.log(request.body);
+	//console.log(request.body.address);
+	//console.log(request.body.name);
+	//console.log(request.body.manager);
 
 	var query = sql.format('INSERT INTO Building SET ?', request.body);
 	connection.query(query, function (error, results, fields) {
@@ -655,8 +629,8 @@ server.post('/buildings', function(request, response) {
  * Handle post requests for /buildingDelete
 ******************** */
 server.post('/buildingDelete', function(request, response) {
-	console.log("Building Delete Data: ");
-	console.log(request.body);
+	//console.log("Building Delete Data: ");
+	//console.log(request.body);
 
 	var query = sql.format('DELETE FROM Building WHERE address = ?', request.body.address);
 	connection.query(query, function (error, results, fields) {
@@ -689,8 +663,8 @@ server.get('/locations', function(request, response, next) {
  * Handle post requests for /locations
 ******************** */
 server.post('/locations', function(request, response) {
-	console.log("Locations Data: ");
-	console.log(request.body);
+	//console.log("Locations Data: ");
+	//console.log(request.body);
 
 	var query = sql.format('INSERT INTO Location SET ?', request.body);
 	connection.query(query, function (error, results, fields) {
@@ -708,8 +682,8 @@ server.post('/locations', function(request, response) {
  * Handle post requests for /locationDelete
 ******************** */
 server.post('/locationDelete', function(request, response) {
-	console.log("Location Delete Data: ");
-	console.log(request.body);
+	//console.log("Location Delete Data: ");
+	//console.log(request.body);
 
 	var query = sql.format('DELETE FROM Location WHERE ID = ?', request.body.ID);
 	connection.query(query, function (error, results, fields) {
@@ -743,8 +717,8 @@ server.get('/tools', function(request, response, next) {
  * Handle post requests for /tools
 ******************** */
 server.post('/tools', function(request, response) {
-	console.log("Tools Data: ");
-	console.log(request.body);
+	//console.log("Tools Data: ");
+	//console.log(request.body);
 
 	var queryData = {TID: request.body.tid, name: request.body.name, "business name": request.body.maintainer};
 	var query = sql.format('INSERT INTO Tool SET ?', queryData);
@@ -774,8 +748,8 @@ server.post('/tools', function(request, response) {
  * Handle post requests for /toolDelete
 ******************** */
 server.post('/toolDelete', function(request, response) {
-	console.log("Tool Delete Data: ");
-	console.log(request.body);
+	//console.log("Tool Delete Data: ");
+	//console.log(request.body);
 
 	var query = sql.format('DELETE FROM Tool WHERE TID = ?', request.body.TID);
 	console.log("Query: " + query);
@@ -789,64 +763,6 @@ server.post('/toolDelete', function(request, response) {
 		}
 	});
 });
-
-/* ********************
- * Handle get requests for /contains
-******************** */
-server.get('/contains', function(request, response, next) {
-	console.log("Rendering contains page");
-	var authorization = checkAuth(request);
-	if (!authorization) {
-		response.redirect('/login');
-		return;
-	}
-	getContainsData(function(titles, containsData) {
-		renderContentPage("contains", titles, containsData, request, response);
-	});
-});
-
-/* ********************
- * Handle post requests for /contains
-******************** */
-server.post('/contains', function(request, response) {
-	console.log("Contains Data: ");
-	console.log(request.body);
-
-	var queryData = {ID: request.body.lid, TID: request.body.tid};
-	var query = sql.format('INSERT INTO Contains SET ?', queryData);
-	console.log("Query: " + query);
-	connection.query(query, function (error, results, fields) {
-		if (error) {
-			console.log("ERROR: " + error);
-			response.status(401).end();
-			return;
-		} else {
-			response.status(200).end();
-		}
-	});
-});
-
-/* ********************
- * Handle post requests for /containsDelete
-******************** */
-server.post('/containsDelete', function(request, response) {
-	console.log("Contains Delete Data: ");
-	console.log(request.body);
-
-	var query = sql.format('DELETE FROM Contains WHERE TID = ? AND ID = ?', [request.body.TID, request.body.ID]);
-	console.log("Query: " + query);
-	connection.query(query, function (error, results, fields) {
-		if (error) {
-			console.log("ERROR: " + error);
-			response.status(401).end();
-			return;
-		} else {
-			response.status(200).end();
-		}
-	});
-});
-
-
 
 /* ********************
  * Handle get requests for /maintainers
@@ -867,8 +783,8 @@ server.get('/maintainers', function(request, response, next) {
  * Handle post requests for /maintainers
 ******************** */
 server.post('/maintainers', function(request, response) {
-	console.log("Maintainers Data: ");
-	console.log(request.body);
+	//console.log("Maintainers Data: ");
+	//console.log(request.body);
 
 	var queryData = {name: request.body.name, phone: request.body.phone, email: request.body.email};
 	var query = sql.format('INSERT INTO `Maintenance Company` SET ?', queryData);
@@ -888,8 +804,8 @@ server.post('/maintainers', function(request, response) {
  * Handle post requests for /maintainerDelete
 ******************** */
 server.post('/maintainerDelete', function(request, response) {
-	console.log("Maintainer Delete Data: ");
-	console.log(request.body);
+	//console.log("Maintainer Delete Data: ");
+	//console.log(request.body);
 
 	var query = sql.format('DELETE FROM `Maintenance Company` WHERE name = ?', request.body.name);
 	console.log("Query: " + query);
@@ -920,18 +836,34 @@ server.get('/logout', function(request, response, next) {
 });
 
 /* ********************
- * Handle get requests for /accordion
+ * Handle get requests for 
 ******************** */
-server.get('/accordion', function(request, response, next) {
-	console.log("Rendering accordion page");
+server.get('/locations_and_tools', function(request, response, next) {
+	console.log("Rendering locations_and_tools page");
 	var authorization = checkAuth(request);
 	if (!authorization) {
 		response.redirect('/login');
 		return;
 	}
-	renderAccordionPage("pageName", "", request, response);
+	getLocationsAndToolsData(function(accordionData) {
+		renderAccordionPage("locations_and_tools", accordionData, request, response);
+	});
 });
 
+/* ********************
+ * Handle get requests for 
+******************** */
+server.get('/buildings_and_locations', function(request, response, next) {
+	console.log("Rendering buildings_and_locations page");
+	var authorization = checkAuth(request);
+	if (!authorization) {
+		response.redirect('/login');
+		return;
+	}
+	getBuildingsAndLocationsData(function(accordionData) {
+		renderAccordionPage("buildings_and_locations", accordionData, request, response);
+	});
+});
 
 /* ********************
  * Serve any sort of file the user requests
@@ -1003,6 +935,48 @@ server.get('*', function(request, response) {
 });
 
 /* ********************
+ * Query the DB to get the
+******************** */
+function getLocationsAndToolsData(content) {
+	// Generate the select statement
+	var query = sql.format('SELECT `Location`.`ID`, `Location`.`name` AS lname, `Tool`.`TID`, `Tool`.`name` FROM Location, Tool, Contains, (SELECT Location.ID FROM Location WHERE 1) AS lids WHERE `lids`.`ID` = `Location`.`ID` AND `lids`.`ID` = `Contains`.`ID` AND `Contains`.`TID` = `Tool`.`TID`');
+
+	// Execute the select statement
+	connection.query(query, function (error, results, fields) {
+		// Pass the error back if present
+		if (error) {
+			console.log("ERROR: " + error);
+			return;
+		}
+		parseOutContentLocationsAndTools(results, function(parsedContent) {
+			// Callback to return the data
+			content(parsedContent);
+		});
+	});
+}
+
+/* ********************
+ * Query the DB to get the
+******************** */
+function getBuildingsAndLocationsData(content) {
+	// Generate the select statement
+	var query = sql.format('SELECT `Building`.`address`, `Building`.`name`, `Location`.`ID`, `Location`.`name` AS lname FROM Building, Location WHERE `Location`.`address` = `Building`.`address`');
+
+	// Execute the select statement
+	connection.query(query, function (error, results, fields) {
+		// Pass the error back if present
+		if (error) {
+			console.log("ERROR: " + error);
+			return;
+		}
+		parseOutContentBuildingsAndLocations(results, function(parsedContent) {
+			// Callback to return the data
+			content(parsedContent);
+		});
+	});
+}
+
+/* ********************
  * Query the DB to get the buildings table data and construct the response JSO for handlebars
 ******************** */
 function getBuildingsData(content) {
@@ -1066,27 +1040,6 @@ function getToolsData(content) {
 }
 
 /* ********************
- * Query the DB to get the contains table data and construct the response JSO for handlebars
-******************** */
-function getContainsData(content) {
-	// Generate the select statement
-	var query = sql.format('SELECT * FROM Contains WHERE 1');
-
-	// Execute the select statement
-	connection.query(query, function (error, results, fields) {
-		// Pass the error back if present
-		if (error) {
-			console.log("ERROR: " + error);
-			return;
-		}
-		parseOutTitlesAndContent(results, function(titles, parsedContent) {
-			// Callback to return the data
-			content(titles, parsedContent);
-		});
-	});
-}
-
-/* ********************
  * Query the DB to get the tools table data and construct the response JSO for handlebars
 ******************** */
 function getMaintainerData(content) {
@@ -1113,7 +1066,6 @@ function parseOutTitlesAndContent(results, content) {
 		var tmpObj = {title: Object.keys(results[0])[key]};
 		titleArr.push(tmpObj);
 	}
-	//console.log("Title Array: ", title_arr);
 
 	// Generate the content
 	var contentArr = [];
@@ -1125,11 +1077,101 @@ function parseOutTitlesAndContent(results, content) {
 		}
 		contentArr.push(tmpArr);
 	}
-	//console.log("Content Array: ", content_arr);
 
 	// Callback to return the data
 	content(titleArr, contentArr);
 }
+
+function parseOutContentLocationsAndTools(results, content) {
+	// Generate the content
+	var contentArr = [];
+	var contentObj = {};
+	var currObj = {};
+	var currArr = [];
+	for (var index in results) {
+		var contentStr = '';
+		for (var jndex in results[index]) {
+			if (jndex == "lname") {
+				objectName = results[index][jndex];
+			} else if (jndex == "name") {
+				contentStr += " " + results[index][jndex];
+			} else if (jndex == "TID") {
+				contentStr += " " + results[index][jndex];
+			}
+		}
+		var tmpSubObj = {content: contentStr};
+		currArr.push(tmpSubObj);
+		currObj.data = currArr;
+		var tmpArr = [];
+		tmpArr.push(currObj);
+		//contentArr = contentArr.concat(tmpArr);
+		if (!contentObj[objectName]) {
+			contentObj[objectName] = [];
+		}
+		contentObj[objectName].push(tmpSubObj);
+
+		currObj = {};
+		currArr = [];
+		objectName = '';
+	}
+
+	var finalArr = [];
+	for (var item in contentObj) {
+		var outerObj = {};
+		outerObj.title = item;
+		outerObj.data = contentObj[item];
+		finalArr.push(outerObj);
+	}
+
+	// Callback to return the data
+	content(finalArr);
+}
+
+function parseOutContentBuildingsAndLocations(results, content) {
+	// Generate the content
+	var contentArr = [];
+	var contentObj = {};
+	var currObj = {};
+	var currArr = [];
+	for (var index in results) {
+		var contentStr = '';
+		for (var jndex in results[index]) {
+			if (jndex == "name") {
+				objectName = results[index][jndex];
+			} else if (jndex == "lname") {
+				contentStr += " " + results[index][jndex];
+			} else if (jndex == "ID") {
+				contentStr += " " + results[index][jndex];
+			}
+		}
+		var tmpSubObj = {content: contentStr};
+		currArr.push(tmpSubObj);
+		currObj.data = currArr;
+		var tmpArr = [];
+		tmpArr.push(currObj);
+		//contentArr = contentArr.concat(tmpArr);
+		if (!contentObj[objectName]) {
+			contentObj[objectName] = [];
+		}
+		contentObj[objectName].push(tmpSubObj);
+
+		currObj = {};
+		currArr = [];
+		objectName = '';
+	}
+
+	var finalArr = [];
+	for (var item in contentObj) {
+		var outerObj = {};
+		outerObj.title = item;
+		outerObj.data = contentObj[item];
+		finalArr.push(outerObj);
+	}
+
+	// Callback to return the data
+	content(finalArr);
+}
+
 
 function convertSelectResultsToArray(results, callback) {
 	var resultsArr = [];
