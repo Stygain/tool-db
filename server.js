@@ -11,8 +11,8 @@ var bcrypt = require('bcrypt');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 
-var testModule = require('./handlebars.js');
-testModule.hello("testName");
+
+var renderer = require('./handlebars.js');
 
 var server = express();
 
@@ -133,398 +133,10 @@ var sessionChecker = (req, res, next) => {
 };
 
 /* ********************
- * Render the home page
-******************** */
-function renderHome(request, response) {
-	console.log("Rendering home page");
-	var authorization = checkAuth(request);
-	var templateArgs = {
-		title: "Tools DB - Home",
-		nav_title: "Tools DB",
-		active: "home",
-		loggedIn: authorization,
-		loadCss: [
-			{filename: "index.css"},
-			{filename: "home.css"},
-		],
-		loadJs: [
-			{filename: "index.js"},
-		],
-	};
-	response.render('homePage', templateArgs);
-};
-
-function renderAccordionPage(page, data, request, response) {
-	console.log("Rendering accordion page: " + page);
-	var authorization = checkAuth(request);
-	if (page == "locations_and_tools") {
-		var templateArgs = {
-			title: "Locations and Tools",
-			nav_title: "Tools DB",
-			loggedIn: authorization,
-			active: "locations_and_tools",
-			loadCss: [
-				{filename: "index.css"},
-				{filename: "accordion.css"},
-			],
-			loadJs: [
-				{filename: "index.js"},
-				{filename: "accordion.js"},
-			],
-			accordionData: data,
-		};
-		response.render('accordionPage', templateArgs);
-	} else if (page == "buildings_and_locations") {
-		var templateArgs = {
-			title: "Buildings and Locations",
-			nav_title: "Tools DB",
-			loggedIn: authorization,
-			active: "buildings_and_locations",
-			loadCss: [
-				{filename: "index.css"},
-				{filename: "accordion.css"},
-			],
-			loadJs: [
-				{filename: "index.js"},
-				{filename: "accordion.js"},
-			],
-			accordionData: data,
-		};
-		response.render('accordionPage', templateArgs);
-	}
-};
-
-
-function renderSubAccordionPage(page, data, request, response) {
-	console.log("Rendering sub accordion page: " + page);
-	var authorization = checkAuth(request);
-	if (page == "locations_and_tools") {
-		var templateArgs = {
-			title: "Accordion",
-			nav_title: "Tools DB",
-			loggedIn: authorization,
-			active: "overview",
-			loadCss: [
-				{filename: "index.css"},
-				{filename: "accordion.css"},
-			],
-			loadJs: [
-				{filename: "index.js"},
-				{filename: "accordion.js"},
-			],
-			accordionData: [
-				{
-					title: "title1",
-					data: [
-						{
-							title: "subtitle1",
-							data: [
-								{content: "asdf"},
-								{content: "1234"},
-							],
-							title: "subtitle2",
-							data: [
-								{content: "asdf"},
-								{content: "1234"},
-							],
-						},
-					],
-				},
-			],
-		};
-		response.render('accordionPage', templateArgs);
-	}
-};
-
-/* ********************
- * Render any content page
-******************** */
-function renderContentPage(page, titles, data, request, response) {
-	console.log("Rendering content page: " + page);
-	var authorization = checkAuth(request);
-	if (page == "buildings") {
-		var query = sql.format('SELECT email FROM User WHERE 1');
-		console.log("QUERY: " + query);
-		connection.query(query, function (error, results, fields) {
-			if (error) {
-				console.log("ERROR: " + error);
-				return;
-			}
-			convertSelectResultsToArray(results, function(cbDataArray) {
-				var templateArgs = {
-					title: "Buildings",
-					nav_title: "Tools DB",
-					loggedIn: authorization,
-					active: "buildings",
-					loadCss: [
-						{filename: "index.css"},
-						{filename: "contentPage.css"},
-						{filename: "modal.css"},
-						{filename: "status.css"},
-					],
-					loadJs: [
-						{filename: "index.js"},
-						{filename: "modal.js"},
-						{filename: "content.js"},
-					],
-					header: titles,
-					item: data,
-					modalHeader: "Add New Building",
-					modalType: "buildings",
-					modalContentRow: [
-						{
-							inputType: "text",
-							placeholder: "Address",
-							name: "address",
-							required: true,
-						},
-						{
-							inputType: "text",
-							placeholder: "Name",
-							name: "name",
-							required: true,
-						},
-						{
-							inputType: "combobox",
-							label: "Manager",
-							name: "manager",
-							cbData: cbDataArray,
-						},
-					],
-				};
-				response.render('contentPage', templateArgs);
-			});
-		});
-	} else if (page == "locations") {
-		var query = sql.format('SELECT address FROM Building WHERE 1');
-		console.log("QUERY: " + query);
-		connection.query(query, function (error, results, fields) {
-			if (error) {
-				console.log("ERROR: " + error);
-				return;
-			}
-			convertSelectResultsToArray(results, function(cbDataArray) {
-				var templateArgs = {
-					title: "Locations",
-					nav_title: "Tools DB",
-					loggedIn: authorization,
-					active: "locations",
-					loadCss: [
-						{filename: "index.css"},
-						{filename: "contentPage.css"},
-						{filename: "modal.css"},
-						{filename: "status.css"},
-					],
-					loadJs: [
-						{filename: "index.js"},
-						{filename: "modal.js"},
-						{filename: "content.js"},
-					],
-					header: titles,
-					item: data,
-					modalHeader: "Add New Location",
-					modalType: "locations",
-					modalContentRow: [
-						{
-							inputType: "text",
-							placeholder: "ID",
-							name: "ID",
-							required: true,
-						},
-						{
-							inputType: "combobox",
-							label: "Address",
-							name: "address",
-							cbData: cbDataArray,
-						},
-						{
-							inputType: "text",
-							placeholder: "Name",
-							name: "name",
-							required: true,
-						},
-					],
-				};
-				response.render('contentPage', templateArgs);
-			});
-		});
-	} else if (page == "tools") {
-		var query = sql.format('SELECT name FROM `Maintenance Company` WHERE 1');
-		console.log("QUERY: " + query);
-		connection.query(query, function (error, results, fields) {
-			if (error) {
-				console.log("ERROR: " + error);
-				return;
-			}
-			convertSelectResultsToArray(results, function(maintainerCbDataArray) {
-				query = sql.format('SELECT ID FROM Location WHERE 1');
-				console.log("QUERY: " + query);
-				connection.query(query, function (error, results, fields) {
-					if (error) {
-						console.log("ERROR: " + error);
-						return;
-					}
-					convertSelectResultsToArray(results, function(locationCbDataArray) {
-						var templateArgs = {
-							title: "Tools",
-							nav_title: "Tools DB",
-							loggedIn: authorization,
-							active: "tools",
-							loadCss: [
-								{filename: "index.css"},
-								{filename: "contentPage.css"},
-								{filename: "modal.css"},
-								{filename: "status.css"},
-							],
-							loadJs: [
-								{filename: "index.js"},
-								{filename: "modal.js"},
-								{filename: "content.js"},
-							],
-							header: titles,
-							item: data,
-							modalHeader: "Add New Tool",
-							modalType: "tools",
-							modalContentRow: [
-								{
-									inputType: "text",
-									placeholder: "TID",
-									name: "tid",
-									required: true,
-								},
-								{
-									inputType: "text",
-									placeholder: "Name",
-									name: "name",
-									required: true,
-								},
-								{
-									inputType: "combobox",
-									label: "Maintenance Company",
-									name: "maintainer",
-									cbData: maintainerCbDataArray,
-								},
-								{
-									inputType: "combobox",
-									label: "Location",
-									name: "location",
-									cbData: locationCbDataArray,
-								},
-							],
-						};
-						response.render('contentPage', templateArgs);
-					});
-				});
-			});
-		});
-	} else if (page == "contains") {
-		var query = sql.format('SELECT tid FROM Tool WHERE 1');
-		console.log("QUERY: " + query);
-		connection.query(query, function (error, results, fields) {
-			if (error) {
-				console.log("ERROR: " + error);
-				return;
-			}
-			convertSelectResultsToArray(results, function(toolCbDataArray) {
-				query = sql.format('SELECT ID FROM Location WHERE 1');
-				console.log("QUERY: " + query);
-				connection.query(query, function (error, results, fields) {
-					if (error) {
-						console.log("ERROR: " + error);
-						return;
-					}
-					convertSelectResultsToArray(results, function(locationCbDataArray) {
-						var templateArgs = {
-							title: "Contains",
-							nav_title: "Tools DB",
-							loggedIn: authorization,
-							active: "contains",
-							loadCss: [
-								{filename: "index.css"},
-								{filename: "contentPage.css"},
-								{filename: "modal.css"},
-								{filename: "status.css"},
-							],
-							loadJs: [
-								{filename: "index.js"},
-								{filename: "modal.js"},
-								{filename: "content.js"},
-							],
-							header: titles,
-							item: data,
-							modalHeader: "Add New Relation",
-							modalType: "contains",
-							modalContentRow: [
-								{
-									inputType: "combobox",
-									label: "Location ID",
-									name: "lid",
-									cbData: locationCbDataArray,
-								},
-								{
-									inputType: "combobox",
-									label: "Tool",
-									name: "tid",
-									cbData: toolCbDataArray,
-								},
-							],
-						};
-						response.render('contentPage', templateArgs);
-					});
-				});
-			});
-		});
-	} else if (page == "maintainers") {
-		var templateArgs = {
-			title: "Maintenance Company",
-			nav_title: "Tools DB",
-			loggedIn: authorization,
-			active: "maintainers",
-			loadCss: [
-				{filename: "index.css"},
-				{filename: "contentPage.css"},
-				{filename: "modal.css"},
-				{filename: "status.css"},
-			],
-			loadJs: [
-				{filename: "index.js"},
-				{filename: "modal.js"},
-				{filename: "content.js"},
-			],
-			header: titles,
-			item: data,
-			modalHeader: "Add New Maintenance Company",
-			modalType: "maintainers",
-			modalContentRow: [
-				{
-					inputType: "text",
-					placeholder: "Business Name",
-					name: "name",
-					required: true,
-				},
-				{
-					inputType: "text",
-					placeholder: "Phone Number",
-					name: "phone",
-					required: true,
-				},
-				{
-					inputType: "text",
-					placeholder: "E-Mail",
-					name: "email",
-					required: true,
-				},
-			],
-		};
-		response.render('contentPage', templateArgs);
-	}
-};
-
-/* ********************
  * Handle get requests for /
 ******************** */
 server.get('/', (request, response) => {
-	renderHome(request, response);
+	renderer.RenderHomePage(request, response);
 });
 
 /* ********************
@@ -536,23 +148,7 @@ server.get('/login', function(request, response) {
 		response.redirect('/');
 		return;
 	}
-	console.log("Rendering login page");
-	var templateArgs = {
-		title: "Tools DB - Home",
-		nav_title: "Tools DB",
-		active: "login",
-		login: true,
-		loadCss: [
-			{filename: "index.css"},
-			{filename: "login.css"},
-			{filename: "status.css"},
-		],
-		loadJs: [
-			{filename: "index.js"},
-			{filename: "login.js"}
-		],
-	};
-	response.render('loginPage', templateArgs);
+	renderer.RenderLoginPage(request, response);
 });
 
 /* ********************
@@ -594,23 +190,7 @@ server.post('/login', function(request, response) {
  * Handle get requests for /register
 ******************** */
 server.get('/register', function(request, response, next) {
-	console.log("Rendering register page");
-	var templateArgs = {
-		title: "Tools DB - Register",
-		nav_title: "Tools DB",
-		active: "register",
-		login: false,
-		loadCss: [
-			{filename: "index.css"},
-			{filename: "login.css"},
-			{filename: "status.css"},
-		],
-		loadJs: [
-			{filename: "index.js"},
-			{filename: "register.js"}
-		],
-	};
-	response.render('loginPage', templateArgs);
+	renderer.RenderRegisterPage();
 });
 
 /* ********************
@@ -659,7 +239,7 @@ server.get('/buildings', function(request, response, next) {
 		var cbData = {};
 		var managerData = {}
 
-		renderContentPage("buildings", titles, buildingsData, request, response);
+		renderer.RenderContentPage("buildings", titles, buildingsData, request, response);
 	});
 });
 
@@ -715,7 +295,7 @@ server.get('/locations', function(request, response, next) {
 		return;
 	}
 	getLocationsData(function(titles, locationsData) {
-		renderContentPage("locations", titles, locationsData, request, response);
+		renderer.RenderContentPage("locations", titles, locationsData, request, response);
 	});
 });
 
@@ -769,7 +349,7 @@ server.get('/tools', function(request, response, next) {
 		return;
 	}
 	getToolsData(function(titles, toolsData) {
-		renderContentPage("tools", titles, toolsData, request, response);
+		renderer.RenderContentPage("tools", titles, toolsData, request, response);
 	});
 });
 
@@ -835,7 +415,7 @@ server.get('/contains', function(request, response, next) {
 		return;
 	}
 	getContainsData(function(titles, containsData) {
-		renderContentPage("contains", titles, containsData, request, response);
+		renderer.RenderContentPage("contains", titles, containsData, request, response);
 	});
 });
 
@@ -891,7 +471,7 @@ server.get('/maintainers', function(request, response, next) {
 		return;
 	}
 	getMaintainerData(function(titles, maintainersData) {
-		renderContentPage("maintainers", titles, maintainersData, request, response);
+		renderer.RenderContentPage("maintainers", titles, maintainersData, request, response);
 	});
 });
 
@@ -962,7 +542,7 @@ server.get('/locations_and_tools', function(request, response, next) {
 		return;
 	}
 	getLocationsAndToolsData(function(accordionData) {
-		renderAccordionPage("locations_and_tools", accordionData, request, response);
+		renderer.RenderAccordionPage("locations_and_tools", accordionData, request, response);
 	});
 });
 
@@ -977,7 +557,7 @@ server.get('/buildings_and_locations', function(request, response, next) {
 		return;
 	}
 	getBuildingsAndLocationsData(function(accordionData) {
-		renderAccordionPage("buildings_and_locations", accordionData, request, response);
+		renderer.RenderAccordionPage("buildings_and_locations", accordionData, request, response);
 	});
 });
 
@@ -1012,20 +592,20 @@ function serveStaticFiles(request, response) {
 	}
 
 	fs.readFile(filePath, function(error, content) {
-	  if (error) {
-		  if(error.code == 'ENOENT'){
-			  response.render('404Page');
-		  }
-		  else {
-			  responseponse.writeHead(500);
-			  responseponse.end('Sorry, check with the site admin for error: '+error.code+' ..\n');
-			  responseponse.end(); 
-		  }
-	  }
-	  else {
-		  response.writeHead(200, { 'Content-Type': contentType });
-		  response.end(content, 'utf-8');
-	  }
+		if (error) {
+			if(error.code == 'ENOENT'){
+				renderer.Render404Page('404Page');
+			}
+			else {
+				responseponse.writeHead(500);
+				responseponse.end('Sorry, check with the site admin for error: '+error.code+' ..\n');
+				responseponse.end(); 
+			}
+		}
+		else {
+			response.writeHead(200, { 'Content-Type': contentType });
+			response.end(content, 'utf-8');
+		}
 	});
 }
 
@@ -1047,7 +627,7 @@ server.get('/assets/*', function(request, response, next) {
  * Handle any other requests with the 404 page
 ******************** */
 server.get('*', function(request, response) {
-	response.render('404Page');
+	renderer.Render404Page('404Page');
 });
 
 /* ********************
