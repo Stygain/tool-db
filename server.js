@@ -24,6 +24,8 @@ var port = process.env.PORT || 3000;
 
 const saltRounds = 10;
 
+var connection;
+
 /* ********************
  * Server config
 ******************** */
@@ -48,8 +50,41 @@ server.listen(port, function() {
 
 setup.Setup();
 
+var connection;
+
+/* ********************
+ * Database continual-connection
+ ******************** */
+function dbConnect() {
+	console.log("Connecting to the database.");
+	connection = sql.createConnection("mysql://cs340_bartonad:potato@classmysql.engr.oregonstate.edu/cs340_bartonad");
+
+	connection.connect(function(err) {
+		if (err) {
+			console.log("Error connecting to the database: " + err);
+			setTimeout(dbConnect, 1000);
+		}
+		console.log("Successfully connected to the database!");
+	});
+	connection.on('error', function(err) {
+		console.log("Database error: " + err);
+		if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+			dbConnect();
+		} else {
+			throw err;
+		}
+	});
+}
+
 // Start the database connection
-db.Connect();
+dbConnect();
+
+//// Start the database connection
+//db.Connect(connection, function(conn) {
+//	connection = conn;
+//
+//	//db.RegisterHandler(connection);
+//});
 
 /* ********************
  * Handle get requests for /
