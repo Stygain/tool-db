@@ -12,7 +12,8 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session');
 
 
-var renderer = require('./handlebars.js');
+var renderer = require('./handlebars/renderer.js');
+var db = require('./db.js');
 
 var server = express();
 
@@ -51,35 +52,8 @@ server.listen(port, function() {
 ******************** */
 
 
-var connection;
-
-/* ********************
- * Database continual-connection
-******************** */
-function handleDisconnect() {
-	//console.log('1. connecting to db:');
-	// CONFIG CHANGE USERNAME AND PASSWORD
-	connection = sql.createConnection('mysql://cs340_bartonad:potato@classmysql.engr.oregonstate.edu/cs340_bartonad');
-
-	connection.connect(function(err) {
-		if (err) {
-			//console.log('2. error when connecting to db:', err);
-			setTimeout(handleDisconnect, 1000);
-		}
-		//console.log("Connected!");
-	});
-	connection.on('error', function(err) {
-		//console.log('3. db error', err);
-		if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-			handleDisconnect();
-		} else {
-			throw err;
-		}
-	});
-}
-
-// Star the database connection
-handleDisconnect();
+// Start the database connection
+db.Connect();
 
 /* ********************
  * Handlebars conditional helper
