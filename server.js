@@ -52,39 +52,40 @@ setup.Setup();
 
 var connection;
 
-/* ********************
- * Database continual-connection
- ******************** */
-function dbConnect() {
-	console.log("Connecting to the database.");
-	connection = sql.createConnection("mysql://cs340_bartonad:potato@classmysql.engr.oregonstate.edu/cs340_bartonad");
-
-	connection.connect(function(err) {
-		if (err) {
-			console.log("Error connecting to the database: " + err);
-			setTimeout(dbConnect, 1000);
-		}
-		console.log("Successfully connected to the database!");
-	});
-	connection.on('error', function(err) {
-		console.log("Database error: " + err);
-		if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-			dbConnect();
-		} else {
-			throw err;
-		}
-	});
-}
+///* ********************
+// * Database continual-connection
+// ******************** */
+//function dbConnect() {
+//	console.log("Connecting to the database.");
+//	connection = sql.createConnection("mysql://cs340_bartonad:potato@classmysql.engr.oregonstate.edu/cs340_bartonad");
+//
+//	connection.connect(function(err) {
+//		if (err) {
+//			console.log("Error connecting to the database: " + err);
+//			setTimeout(dbConnect, 1000);
+//		}
+//		console.log("Successfully connected to the database!");
+//	});
+//	connection.on('error', function(err) {
+//		console.log("Database error: " + err);
+//		if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+//			dbConnect();
+//		} else {
+//			throw err;
+//		}
+//	});
+//}
+//
+//// Start the database connection
+//dbConnect();
 
 // Start the database connection
-dbConnect();
+db.Connect();
 
-//// Start the database connection
-//db.Connect(connection, function(conn) {
-//	connection = conn;
-//
-//	//db.RegisterHandler(connection);
-//});
+db.GetConnection(function(conn) {
+	connection = conn;
+	console.log("Connection " + connection);
+});
 
 /* ********************
  * Handle get requests for /
