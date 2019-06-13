@@ -70,7 +70,7 @@ function checkAuth(request) {
 /* ********************
  * Check if the user is authenticated and redirect them elsewhere if not
 ******************** */
-var sessionChecker = (req, res, next) => {
+var sessionChecker = function(req, res, next) {
 	if (req.cookies.site_auth) {
 		res.redirect('/');
 	} else {
