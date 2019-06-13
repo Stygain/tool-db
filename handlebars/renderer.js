@@ -1,5 +1,7 @@
 // Handlebars Renderer
 
+var auth = require('../auth.js');
+
 module.exports = {
 	RenderHomePage: renderHomePage,
 	RenderLoginPage: renderLoginPage,
@@ -14,7 +16,7 @@ module.exports = {
 ******************** */
 function renderHomePage(request, response) {
 	console.log("Rendering home page");
-	var authorization = checkAuth(request);
+	var authorization = auth.CheckAuth(request);
 	var templateArgs = {
 		title: "Tools DB - Home",
 		nav_title: "Tools DB",
@@ -83,7 +85,7 @@ function renderRegisterPage(request, response) {
 ******************** */
 function renderAccordionPage(page, data, request, response) {
 	console.log("Rendering accordion page: " + page);
-	var authorization = checkAuth(request);
+	var authorization = auth.CheckAuth(request);
 	if (page == "locations_and_tools") {
 		var templateArgs = {
 			title: "Locations and Tools",
@@ -127,7 +129,7 @@ function renderAccordionPage(page, data, request, response) {
 ******************** */
 function renderContentPage(page, titles, data, request, response) {
 	console.log("Rendering content page: " + page);
-	var authorization = checkAuth(request);
+	var authorization = auth.CheckAuth(request);
 	if (page == "buildings") {
 		var query = sql.format('SELECT email FROM User WHERE 1');
 		console.log("QUERY: " + query);

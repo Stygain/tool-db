@@ -15,6 +15,7 @@ var session = require('express-session');
 var setup = require('./setup.js');
 var renderer = require('./handlebars/renderer.js');
 var db = require('./db.js');
+var auth = require('./auth.js');
 
 var server = express();
 
@@ -34,15 +35,7 @@ server.use(express.urlencoded({extended: true}));
 server.use(express.json());
 server.use(cookieParser());
 
-server.use(session({
-	key: 'site_auth',
-	secret: 'somerandonstuffs',
-	resave: false,
-	saveUninitialized: false,
-	cookie: {
-		expires: 600000
-	}
-}));
+auth.InitializeSession(server);
 
 server.listen(port, function() {
 	console.log("Server running on port ", port);
@@ -58,27 +51,6 @@ setup.Setup();
 db.Connect();
 
 /* ********************
- * Check if the user is authenticated
-******************** */
-function checkAuth(request) {
-	if (request.cookies.site_auth) {
-		return true;
-	}
-	return false;
-}
-
-/* ********************
- * Check if the user is authenticated and redirect them elsewhere if not
-******************** */
-var sessionChecker = function(req, res, next) {
-	if (req.cookies.site_auth) {
-		res.redirect('/');
-	} else {
-		next();
-	}    
-};
-
-/* ********************
  * Handle get requests for /
 ******************** */
 server.get('/', function(request, response) {
@@ -89,7 +61,7 @@ server.get('/', function(request, response) {
  * Handle get requests for /login
 ******************** */
 server.get('/login', function(request, response) {
-	var authorization = checkAuth(request);
+	var authorization = auth.CheckAuth(request);
 	if (authorization) {
 		response.redirect('/');
 		return;
@@ -176,7 +148,7 @@ server.post('/register', function(request, response) {
 ******************** */
 server.get('/buildings', function(request, response, next) {
 	console.log("Rendering buildings page");
-	var authorization = checkAuth(request);
+	var authorization = auth.CheckAuth(request);
 	if (!authorization) {
 		response.redirect('/login');
 		return;
@@ -235,7 +207,7 @@ server.post('/buildingDelete', function(request, response) {
 ******************** */
 server.get('/locations', function(request, response, next) {
 	console.log("Rendering locations page");
-	var authorization = checkAuth(request);
+	var authorization = auth.CheckAuth(request);
 	if (!authorization) {
 		response.redirect('/login');
 		return;
@@ -289,7 +261,7 @@ server.post('/locationDelete', function(request, response) {
 ******************** */
 server.get('/tools', function(request, response, next) {
 	console.log("Rendering tools page");
-	var authorization = checkAuth(request);
+	var authorization = auth.CheckAuth(request);
 	if (!authorization) {
 		response.redirect('/login');
 		return;
@@ -355,7 +327,7 @@ server.post('/toolDelete', function(request, response) {
  ******************** */
 server.get('/contains', function(request, response, next) {
 	console.log("Rendering contains page");
-	var authorization = checkAuth(request);
+	var authorization = auth.CheckAuth(request);
 	if (!authorization) {
 		response.redirect('/login');
 		return;
@@ -411,7 +383,7 @@ server.post('/containsDelete', function(request, response) {
 ******************** */
 server.get('/maintainers', function(request, response, next) {
 	console.log("Rendering maintainers page");
-	var authorization = checkAuth(request);
+	var authorization = auth.CheckAuth(request);
 	if (!authorization) {
 		response.redirect('/login');
 		return;
@@ -467,7 +439,7 @@ server.post('/maintainerDelete', function(request, response) {
 ******************** */
 server.get('/logout', function(request, response, next) {
 	console.log("Rendering logout page");
-	var authorization = checkAuth(request);
+	var authorization = auth.CheckAuth(request);
 	if (!authorization) {
 		response.redirect('/login');
 		return;
@@ -482,7 +454,7 @@ server.get('/logout', function(request, response, next) {
 ******************** */
 server.get('/locations_and_tools', function(request, response, next) {
 	console.log("Rendering locations_and_tools page");
-	var authorization = checkAuth(request);
+	var authorization = auth.CheckAuth(request);
 	if (!authorization) {
 		response.redirect('/login');
 		return;
@@ -497,7 +469,7 @@ server.get('/locations_and_tools', function(request, response, next) {
 ******************** */
 server.get('/buildings_and_locations', function(request, response, next) {
 	console.log("Rendering buildings_and_locations page");
-	var authorization = checkAuth(request);
+	var authorization = auth.CheckAuth(request);
 	if (!authorization) {
 		response.redirect('/login');
 		return;
