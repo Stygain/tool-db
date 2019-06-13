@@ -17,6 +17,7 @@ var renderer = require('./handlebars/renderer.js');
 var db = require('./db/db.js');
 var dbParser = require('./db/parser.js');
 var auth = require('./auth.js');
+var routes = require('./routes.js');
 
 var server = express();
 
@@ -61,6 +62,7 @@ db.Connect();
  * Handle get requests for /
 ******************** */
 server.get('/', function(request, response) {
+	routes.RouteHandler('/');
 	renderer.RenderHomePage(request, response);
 });
 
