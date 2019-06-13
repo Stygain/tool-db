@@ -7,6 +7,9 @@ module.exports = {
 	ConvertSelectResultsToArray: convertSelectResultsToArray,
 };
 
+/* ********************
+ * 
+******************** */
 function parseOutTitlesAndContent(results, content) {
 	var titleArr = [];
 	for (var key in Object.keys(results[0])) {
@@ -27,8 +30,11 @@ function parseOutTitlesAndContent(results, content) {
 
 	// Callback to return the data
 	content(titleArr, contentArr);
-}
+};
 
+/* ********************
+ * 
+******************** */
 function parseOutContentLocationsAndTools(results, content) {
 	// Generate the content
 	var contentArr = [];
@@ -72,8 +78,11 @@ function parseOutContentLocationsAndTools(results, content) {
 
 	// Callback to return the data
 	content(finalArr);
-}
+};
 
+/* ********************
+ * 
+******************** */
 function parseOutContentBuildingsAndLocations(results, content) {
 	// Generate the content
 	var contentArr = [];
@@ -117,9 +126,11 @@ function parseOutContentBuildingsAndLocations(results, content) {
 
 	// Callback to return the data
 	content(finalArr);
-}
+};
 
-
+/* ********************
+ * 
+******************** */
 function convertSelectResultsToArray(results, callback) {
 	var resultsArr = [];
 	for (var index in results) {
@@ -132,4 +143,4 @@ function convertSelectResultsToArray(results, callback) {
 	}
 
 	callback(resultsArr);
-}
+};

@@ -1,6 +1,10 @@
 // Handlebars Renderer
 
+var sql = require('mysql');
+
 var auth = require('../auth.js');
+var db = require('../db/db.js');
+var dbParser = require('../db/parser.js');
 
 module.exports = {
 	RenderHomePage: renderHomePage,
@@ -132,13 +136,12 @@ function renderContentPage(page, titles, data, request, response) {
 	var authorization = auth.CheckAuth(request);
 	if (page == "buildings") {
 		var query = sql.format('SELECT email FROM User WHERE 1');
-		console.log("QUERY: " + query);
-		connection.query(query, function (error, results, fields) {
-			if (error) {
-				console.log("ERROR: " + error);
+		db.Query(query, function(status, results) {
+			if (!status) {
+				console.log("ERROR: " + results);
 				return;
 			}
-			convertSelectResultsToArray(results, function(cbDataArray) {
+			dbParser.ConvertSelectResultsToArray(results, function(cbDataArray) {
 				var templateArgs = {
 					title: "Buildings",
 					nav_title: "Tools DB",
@@ -185,13 +188,12 @@ function renderContentPage(page, titles, data, request, response) {
 		});
 	} else if (page == "locations") {
 		var query = sql.format('SELECT address FROM Building WHERE 1');
-		console.log("QUERY: " + query);
-		connection.query(query, function (error, results, fields) {
-			if (error) {
-				console.log("ERROR: " + error);
+		db.Query(query, function(status, results) {
+			if (!status) {
+				console.log("ERROR: " + results);
 				return;
 			}
-			convertSelectResultsToArray(results, function(cbDataArray) {
+			dbParser.ConvertSelectResultsToArray(results, function(cbDataArray) {
 				var templateArgs = {
 					title: "Locations",
 					nav_title: "Tools DB",
@@ -238,21 +240,19 @@ function renderContentPage(page, titles, data, request, response) {
 		});
 	} else if (page == "tools") {
 		var query = sql.format('SELECT name FROM `Maintenance Company` WHERE 1');
-		console.log("QUERY: " + query);
-		connection.query(query, function (error, results, fields) {
-			if (error) {
-				console.log("ERROR: " + error);
+		db.Query(query, function(status, results) {
+			if (!status) {
+				console.log("ERROR: " + results);
 				return;
 			}
-			convertSelectResultsToArray(results, function(maintainerCbDataArray) {
+			dbParser.ConvertSelectResultsToArray(results, function(maintainerCbDataArray) {
 				query = sql.format('SELECT ID FROM Location WHERE 1');
-				console.log("QUERY: " + query);
-				connection.query(query, function (error, results, fields) {
-					if (error) {
-						console.log("ERROR: " + error);
+				db.Query(query, function(status, results) {
+					if (!status) {
+						console.log("ERROR: " + results);
 						return;
 					}
-					convertSelectResultsToArray(results, function(locationCbDataArray) {
+					dbParser.ConvertSelectResultsToArray(results, function(locationCbDataArray) {
 						var templateArgs = {
 							title: "Tools",
 							nav_title: "Tools DB",
@@ -307,21 +307,19 @@ function renderContentPage(page, titles, data, request, response) {
 		});
 	} else if (page == "contains") {
 		var query = sql.format('SELECT tid FROM Tool WHERE 1');
-		console.log("QUERY: " + query);
-		connection.query(query, function (error, results, fields) {
-			if (error) {
-				console.log("ERROR: " + error);
+		db.Query(query, function(status, results) {
+			if (!status) {
+				console.log("ERROR: " + results);
 				return;
 			}
-			convertSelectResultsToArray(results, function(toolCbDataArray) {
+			dbParser.ConvertSelectResultsToArray(results, function(toolCbDataArray) {
 				query = sql.format('SELECT ID FROM Location WHERE 1');
-				console.log("QUERY: " + query);
-				connection.query(query, function (error, results, fields) {
-					if (error) {
-						console.log("ERROR: " + error);
+				db.Query(query, function(status, results) {
+					if (!status) {
+						console.log("ERROR: " + results);
 						return;
 					}
-					convertSelectResultsToArray(results, function(locationCbDataArray) {
+					dbParser.ConvertSelectResultsToArray(results, function(locationCbDataArray) {
 						var templateArgs = {
 							title: "Contains",
 							nav_title: "Tools DB",

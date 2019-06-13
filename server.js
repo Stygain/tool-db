@@ -24,8 +24,6 @@ var port = process.env.PORT || 3000;
 
 const saltRounds = 10;
 
-var connection;
-
 /* ********************
  * Server config
 ******************** */
@@ -50,15 +48,14 @@ server.listen(port, function() {
 
 setup.Setup();
 
-var connection;
-
 // Start the database connection
 db.Connect();
 
-db.GetConnection(function(conn) {
-	connection = conn;
-	console.log("Connection " + connection);
-});
+//db.GetConnection(function(conn) {
+//	connection = conn;
+//	console.log("Connection");
+//	console.log(connection);
+//});
 
 /* ********************
  * Handle get requests for /
