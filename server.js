@@ -12,6 +12,7 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session');
 
 
+var setup = require('./setup.js');
 var renderer = require('./handlebars/renderer.js');
 var db = require('./db.js');
 
@@ -51,39 +52,10 @@ server.listen(port, function() {
  * END Server config
 ******************** */
 
+setup.Setup();
 
 // Start the database connection
 db.Connect();
-
-/* ********************
- * Handlebars conditional helper
-******************** */
-hbs.registerHelper('ifCond', function (v1, operator, v2, options) {
-	switch (operator) {
-		case '==':
-			return (v1 == v2) ? options.fn(this) : options.inverse(this);
-		case '===':
-			return (v1 === v2) ? options.fn(this) : options.inverse(this);
-		case '!=':
-			return (v1 != v2) ? options.fn(this) : options.inverse(this);
-		case '!==':
-			return (v1 !== v2) ? options.fn(this) : options.inverse(this);
-		case '<':
-			return (v1 < v2) ? options.fn(this) : options.inverse(this);
-		case '<=':
-			return (v1 <= v2) ? options.fn(this) : options.inverse(this);
-		case '>':
-			return (v1 > v2) ? options.fn(this) : options.inverse(this);
-		case '>=':
-			return (v1 >= v2) ? options.fn(this) : options.inverse(this);
-		case '&&':
-			return (v1 && v2) ? options.fn(this) : options.inverse(this);
-		case '||':
-			return (v1 || v2) ? options.fn(this) : options.inverse(this);
-		default:
-			return options.inverse(this);
-	}
-});
 
 /* ********************
  * Check if the user is authenticated
@@ -164,7 +136,7 @@ server.post('/login', function(request, response) {
  * Handle get requests for /register
 ******************** */
 server.get('/register', function(request, response, next) {
-	renderer.RenderRegisterPage();
+	renderer.RenderRegisterPage(request, response);
 });
 
 /* ********************
@@ -568,7 +540,7 @@ function serveStaticFiles(request, response) {
 	fs.readFile(filePath, function(error, content) {
 		if (error) {
 			if(error.code == 'ENOENT'){
-				renderer.Render404Page('404Page');
+				renderer.Render404Page(request, response);
 			}
 			else {
 				responseponse.writeHead(500);
@@ -601,7 +573,7 @@ server.get('/assets/*', function(request, response, next) {
  * Handle any other requests with the 404 page
 ******************** */
 server.get('*', function(request, response) {
-	renderer.Render404Page('404Page');
+	renderer.Render404Page(request, response);
 });
 
 /* ********************

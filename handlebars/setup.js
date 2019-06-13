@@ -1,5 +1,7 @@
 // Handlebars Setup
 
+var hbs = require('handlebars');
+
 module.exports = {
 	RegisterHelper: registerHelper,
 };
