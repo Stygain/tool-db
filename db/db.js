@@ -5,6 +5,7 @@ var sql = require('mysql');
 module.exports = {
 	Connect: databaseConnect,
 	GetConnection: getConnection,
+	Query: query,
 };
 
 var connection;
@@ -41,3 +42,18 @@ function databaseConnect() {
 function getConnection(content) {
 	content(connection);
 };
+
+/* ********************
+ * Database query passthrough
+******************** */
+function query(query, content) {
+	console.log("Querying database: " + query);
+
+	connection.query(query, function(error, results, fields) {
+		if (error) {
+			content(0, error);
+		} else {
+			content(1, results);
+		}
+	});
+}

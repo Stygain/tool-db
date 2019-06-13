@@ -85,10 +85,10 @@ server.get('/login', function(request, response) {
 server.post('/login', function(request, response) {
 	// Do some database stuff
 	var query = sql.format('SELECT password FROM User WHERE email = ?', [request.body.username]);
-	console.log("QUERY: " + query);
-	connection.query(query, function (error, results, fields) {
-		if (error) {
-			console.log("ERROR: " + error);
+	db.Query(query, function(status, results) {
+		if (!status) {
+			console.log("ERROR: " + results);
+			response.status(401).end();
 			return;
 		}
 		if (results.length == 0) {
@@ -141,9 +141,9 @@ server.post('/register', function(request, response) {
 
 		var post  = {email: request.body.username, password: passHash};
 		var query = sql.format('INSERT INTO User SET ?', post);
-		connection.query(query, function (error, results, fields) {
-			if (error) {
-				console.log("ERROR: " + error);
+		db.Query(query, function(status, results) {
+			if (!status) {
+				console.log("ERROR: " + results);
 				response.status(401).end();
 				return;
 			} else {
@@ -182,9 +182,9 @@ server.post('/buildings', function(request, response) {
 	//console.log(request.body.manager);
 
 	var query = sql.format('INSERT INTO Building SET ?', request.body);
-	connection.query(query, function (error, results, fields) {
-		if (error) {
-			console.log("ERROR: " + error);
+	db.Query(query, function(status, results) {
+		if (!status) {
+			console.log("ERROR: " + results);
 			response.status(401).end();
 			return;
 		} else {
@@ -201,9 +201,9 @@ server.post('/buildingDelete', function(request, response) {
 	//console.log(request.body);
 
 	var query = sql.format('DELETE FROM Building WHERE address = ?', request.body.address);
-	connection.query(query, function (error, results, fields) {
-		if (error) {
-			console.log("ERROR: " + error);
+	db.Query(query, function(status, results) {
+		if (!status) {
+			console.log("ERROR: " + results);
 			response.status(401).end();
 			return;
 		} else {
@@ -235,9 +235,9 @@ server.post('/locations', function(request, response) {
 	//console.log(request.body);
 
 	var query = sql.format('INSERT INTO Location SET ?', request.body);
-	connection.query(query, function (error, results, fields) {
-		if (error) {
-			console.log("ERROR: " + error);
+	db.Query(query, function(status, results) {
+		if (!status) {
+			console.log("ERROR: " + results);
 			response.status(401).end();
 			return;
 		} else {
@@ -254,9 +254,9 @@ server.post('/locationDelete', function(request, response) {
 	//console.log(request.body);
 
 	var query = sql.format('DELETE FROM Location WHERE ID = ?', request.body.ID);
-	connection.query(query, function (error, results, fields) {
-		if (error) {
-			console.log("ERROR: " + error);
+	db.Query(query, function(status, results) {
+		if (!status) {
+			console.log("ERROR: " + results);
 			response.status(401).end();
 			return;
 		} else {
@@ -290,20 +290,18 @@ server.post('/tools', function(request, response) {
 
 	var queryData = {TID: request.body.tid, name: request.body.name, "business name": request.body.maintainer};
 	var query = sql.format('INSERT INTO Tool SET ?', queryData);
-	console.log("Query: " + query);
-	connection.query(query, function (error, results, fields) {
-		if (error) {
-			console.log("ERROR: " + error);
+	db.Query(query, function(status, results) {
+		if (!status) {
+			console.log("ERROR: " + results);
 			response.status(401).end();
 			return;
 		}
 	});
 	queryData = {ID: request.body.location, TID: request.body.tid};
 	query = sql.format('INSERT INTO Contains SET ?', queryData);
-	console.log("Query: " + query);
-	connection.query(query, function (error, results, fields) {
-		if (error) {
-			console.log("ERROR: " + error);
+	db.Query(query, function(status, results) {
+		if (!status) {
+			console.log("ERROR: " + results);
 			response.status(401).end();
 			return;
 		} else {
@@ -320,10 +318,9 @@ server.post('/toolDelete', function(request, response) {
 	//console.log(request.body);
 
 	var query = sql.format('DELETE FROM Tool WHERE TID = ?', request.body.TID);
-	console.log("Query: " + query);
-	connection.query(query, function (error, results, fields) {
-		if (error) {
-			console.log("ERROR: " + error);
+	db.Query(query, function(status, results) {
+		if (!status) {
+			console.log("ERROR: " + results);
 			response.status(401).end();
 			return;
 		} else {
@@ -356,10 +353,9 @@ server.post('/contains', function(request, response) {
 
 	var queryData = {ID: request.body.lid, TID: request.body.tid};
 	var query = sql.format('INSERT INTO Contains SET ?', queryData);
-	console.log("Query: " + query);
-	connection.query(query, function (error, results, fields) {
-		if (error) {
-			console.log("ERROR: " + error);
+	db.Query(query, function(status, results) {
+		if (!status) {
+			console.log("ERROR: " + results);
 			response.status(401).end();
 			return;
 		} else {
@@ -376,10 +372,9 @@ server.post('/containsDelete', function(request, response) {
 	console.log(request.body);
 
 	var query = sql.format('DELETE FROM Contains WHERE TID = ? AND ID = ?', [request.body.TID, request.body.ID]);
-	console.log("Query: " + query);
-	connection.query(query, function (error, results, fields) {
-		if (error) {
-			console.log("ERROR: " + error);
+	db.Query(query, function(status, results) {
+		if (!status) {
+			console.log("ERROR: " + results);
 			response.status(401).end();
 			return;
 		} else {
@@ -412,10 +407,9 @@ server.post('/maintainers', function(request, response) {
 
 	var queryData = {name: request.body.name, phone: request.body.phone, email: request.body.email};
 	var query = sql.format('INSERT INTO `Maintenance Company` SET ?', queryData);
-	console.log("Query: " + query);
-	connection.query(query, function (error, results, fields) {
-		if (error) {
-			console.log("ERROR: " + error);
+	db.Query(query, function(status, results) {
+		if (!status) {
+			console.log("ERROR: " + results);
 			response.status(401).end();
 			return;
 		} else {
@@ -432,10 +426,9 @@ server.post('/maintainerDelete', function(request, response) {
 	//console.log(request.body);
 
 	var query = sql.format('DELETE FROM `Maintenance Company` WHERE name = ?', request.body.name);
-	console.log("Query: " + query);
-	connection.query(query, function (error, results, fields) {
-		if (error) {
-			console.log("ERROR: " + error);
+	db.Query(query, function(status, results) {
+		if (!status) {
+			console.log("ERROR: " + results);
 			response.status(401).end();
 			return;
 		} else {
@@ -566,10 +559,10 @@ function getLocationsAndToolsData(content) {
 	var query = sql.format('SELECT `Location`.`ID`, `Location`.`name` AS lname, `Tool`.`TID`, `Tool`.`name` FROM Location, Tool, Contains, (SELECT Location.ID FROM Location WHERE 1) AS lids WHERE `lids`.`ID` = `Location`.`ID` AND `lids`.`ID` = `Contains`.`ID` AND `Contains`.`TID` = `Tool`.`TID`');
 
 	// Execute the select statement
-	connection.query(query, function (error, results, fields) {
+	db.Query(query, function(status, results) {
 		// Pass the error back if present
-		if (error) {
-			console.log("ERROR: " + error);
+		if (!status) {
+			console.log("ERROR: " + results);
 			return;
 		}
 		dbParser.ParseOutContentLocationsAndTools(results, function(parsedContent) {
@@ -587,10 +580,10 @@ function getBuildingsAndLocationsData(content) {
 	var query = sql.format('SELECT `Building`.`address`, `Building`.`name`, `Location`.`ID`, `Location`.`name` AS lname FROM Building, Location WHERE `Location`.`address` = `Building`.`address`');
 
 	// Execute the select statement
-	connection.query(query, function (error, results, fields) {
+	db.Query(query, function(status, results) {
 		// Pass the error back if present
-		if (error) {
-			console.log("ERROR: " + error);
+		if (!status) {
+			console.log("ERROR: " + results);
 			return;
 		}
 		dbParser.ParseOutContentBuildingsAndLocations(results, function(parsedContent) {
@@ -608,10 +601,10 @@ function getContainsData(content) {
 	var query = sql.format('SELECT * FROM Contains WHERE 1');
 
 	// Execute the select statement
-	connection.query(query, function (error, results, fields) {
+	db.Query(query, function(status, results) {
 		// Pass the error back if present
-		if (error) {
-			console.log("ERROR: " + error);
+		if (!status) {
+			console.log("ERROR: " + results);
 			return;
 		}
 		dbParser.ParseOutTitlesAndContent(results, function(titles, parsedContent) {
@@ -629,10 +622,10 @@ function getBuildingsData(content) {
 	var query = sql.format('SELECT * FROM Building WHERE 1');
 
 	// Execute the select statement
-	connection.query(query, function (error, results, fields) {
+	db.Query(query, function(status, results) {
 		// Pass the error back if present
-		if (error) {
-			console.log("ERROR: " + error);
+		if (!status) {
+			console.log("ERROR: " + results);
 			return;
 		}
 		dbParser.ParseOutTitlesAndContent(results, function(titles, parsedContent) {
@@ -650,10 +643,10 @@ function getLocationsData(content) {
 	var query = sql.format('SELECT * FROM Location WHERE 1');
 
 	// Execute the select statement
-	connection.query(query, function (error, results, fields) {
+	db.Query(query, function(status, results) {
 		// Pass the error back if present
-		if (error) {
-			console.log("ERROR: " + error);
+		if (!status) {
+			console.log("ERROR: " + results);
 			return;
 		}
 		dbParser.ParseOutTitlesAndContent(results, function(titles, parsedContent) {
@@ -671,10 +664,10 @@ function getToolsData(content) {
 	var query = sql.format('SELECT * FROM Tool WHERE 1');
 
 	// Execute the select statement
-	connection.query(query, function (error, results, fields) {
+	db.Query(query, function(status, results) {
 		// Pass the error back if present
-		if (error) {
-			console.log("ERROR: " + error);
+		if (!status) {
+			console.log("ERROR: " + results);
 			return;
 		}
 		dbParser.ParseOutTitlesAndContent(results, function(titles, parsedContent) {
@@ -692,10 +685,10 @@ function getMaintainerData(content) {
 	var query = sql.format('SELECT * FROM `Maintenance Company` WHERE 1');
 
 	// Execute the select statement
-	connection.query(query, function (error, results, fields) {
+	db.Query(query, function(status, results) {
 		// Pass the error back if present
-		if (error) {
-			console.log("ERROR: " + error);
+		if (!status) {
+			console.log("ERROR: " + results);
 			return;
 		}
 		dbParser.ParseOutTitlesAndContent(results, function(titles, parsedContent) {
