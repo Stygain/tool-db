@@ -81,7 +81,7 @@ var sessionChecker = (req, res, next) => {
 /* ********************
  * Handle get requests for /
 ******************** */
-server.get('/', (request, response) => {
+server.get('/', function(request, response) {
 	renderer.RenderHomePage(request, response);
 });
 
