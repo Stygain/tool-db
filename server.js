@@ -1,20 +1,21 @@
 var fs = require('fs');
-var http = require('http');
+//var http = require('http');
 var path = require('path');
-var util = require('util');
+//var util = require('util');
 
 var exphbs = require('express-handlebars');
 var express = require('express');
-var hbs = require('handlebars');
+//var hbs = require('handlebars');
 var sql = require('mysql');
 var bcrypt = require('bcrypt');
 var cookieParser = require('cookie-parser');
-var session = require('express-session');
+//var session = require('express-session');
 
 
 var setup = require('./setup.js');
 var renderer = require('./handlebars/renderer.js');
-var db = require('./db.js');
+var db = require('./db/db.js');
+var dbParser = require('./db/parser.js');
 var auth = require('./auth.js');
 
 var server = express();
@@ -562,7 +563,7 @@ function getLocationsAndToolsData(content) {
 			console.log("ERROR: " + error);
 			return;
 		}
-		parseOutContentLocationsAndTools(results, function(parsedContent) {
+		dbParser.ParseOutContentLocationsAndTools(results, function(parsedContent) {
 			// Callback to return the data
 			content(parsedContent);
 		});
@@ -583,7 +584,7 @@ function getBuildingsAndLocationsData(content) {
 			console.log("ERROR: " + error);
 			return;
 		}
-		parseOutContentBuildingsAndLocations(results, function(parsedContent) {
+		dbParser.ParseOutContentBuildingsAndLocations(results, function(parsedContent) {
 			// Callback to return the data
 			content(parsedContent);
 		});
@@ -604,7 +605,7 @@ function getContainsData(content) {
 			console.log("ERROR: " + error);
 			return;
 		}
-		parseOutTitlesAndContent(results, function(titles, parsedContent) {
+		dbParser.ParseOutTitlesAndContent(results, function(titles, parsedContent) {
 			// Callback to return the data
 			content(titles, parsedContent);
 		});
@@ -625,7 +626,7 @@ function getBuildingsData(content) {
 			console.log("ERROR: " + error);
 			return;
 		}
-		parseOutTitlesAndContent(results, function(titles, parsedContent) {
+		dbParser.ParseOutTitlesAndContent(results, function(titles, parsedContent) {
 			// Callback to return the data
 			content(titles, parsedContent);
 		});
@@ -646,7 +647,7 @@ function getLocationsData(content) {
 			console.log("ERROR: " + error);
 			return;
 		}
-		parseOutTitlesAndContent(results, function(titles, parsedContent) {
+		dbParser.ParseOutTitlesAndContent(results, function(titles, parsedContent) {
 			// Callback to return the data
 			content(titles, parsedContent);
 		});
@@ -667,7 +668,7 @@ function getToolsData(content) {
 			console.log("ERROR: " + error);
 			return;
 		}
-		parseOutTitlesAndContent(results, function(titles, parsedContent) {
+		dbParser.ParseOutTitlesAndContent(results, function(titles, parsedContent) {
 			// Callback to return the data
 			content(titles, parsedContent);
 		});
@@ -688,136 +689,9 @@ function getMaintainerData(content) {
 			console.log("ERROR: " + error);
 			return;
 		}
-		parseOutTitlesAndContent(results, function(titles, parsedContent) {
+		dbParser.ParseOutTitlesAndContent(results, function(titles, parsedContent) {
 			// Callback to return the data
 			content(titles, parsedContent);
 		});
 	});
-}
-
-function parseOutTitlesAndContent(results, content) {
-	var titleArr = [];
-	for (var key in Object.keys(results[0])) {
-		var tmpObj = {title: Object.keys(results[0])[key]};
-		titleArr.push(tmpObj);
-	}
-
-	// Generate the content
-	var contentArr = [];
-	for (var index in results) {
-		var tmpArr = [];
-		for (var jndex in results[index]) {
-			var tmpSubObj = {content: results[index][jndex]};
-			tmpArr.push(tmpSubObj);
-		}
-		contentArr.push(tmpArr);
-	}
-
-	// Callback to return the data
-	content(titleArr, contentArr);
-}
-
-function parseOutContentLocationsAndTools(results, content) {
-	// Generate the content
-	var contentArr = [];
-	var contentObj = {};
-	var currObj = {};
-	var currArr = [];
-	for (var index in results) {
-		var contentStr = '';
-		for (var jndex in results[index]) {
-			if (jndex == "lname") {
-				objectName = results[index][jndex];
-			} else if (jndex == "name") {
-				contentStr += " " + results[index][jndex];
-			} else if (jndex == "TID") {
-				contentStr += " " + results[index][jndex];
-			}
-		}
-		var tmpSubObj = {content: contentStr};
-		currArr.push(tmpSubObj);
-		currObj.data = currArr;
-		var tmpArr = [];
-		tmpArr.push(currObj);
-		//contentArr = contentArr.concat(tmpArr);
-		if (!contentObj[objectName]) {
-			contentObj[objectName] = [];
-		}
-		contentObj[objectName].push(tmpSubObj);
-
-		currObj = {};
-		currArr = [];
-		objectName = '';
-	}
-
-	var finalArr = [];
-	for (var item in contentObj) {
-		var outerObj = {};
-		outerObj.title = item;
-		outerObj.data = contentObj[item];
-		finalArr.push(outerObj);
-	}
-
-	// Callback to return the data
-	content(finalArr);
-}
-
-function parseOutContentBuildingsAndLocations(results, content) {
-	// Generate the content
-	var contentArr = [];
-	var contentObj = {};
-	var currObj = {};
-	var currArr = [];
-	for (var index in results) {
-		var contentStr = '';
-		for (var jndex in results[index]) {
-			if (jndex == "name") {
-				objectName = results[index][jndex];
-			} else if (jndex == "lname") {
-				contentStr += " " + results[index][jndex];
-			} else if (jndex == "ID") {
-				contentStr += " " + results[index][jndex];
-			}
-		}
-		var tmpSubObj = {content: contentStr};
-		currArr.push(tmpSubObj);
-		currObj.data = currArr;
-		var tmpArr = [];
-		tmpArr.push(currObj);
-		//contentArr = contentArr.concat(tmpArr);
-		if (!contentObj[objectName]) {
-			contentObj[objectName] = [];
-		}
-		contentObj[objectName].push(tmpSubObj);
-
-		currObj = {};
-		currArr = [];
-		objectName = '';
-	}
-
-	var finalArr = [];
-	for (var item in contentObj) {
-		var outerObj = {};
-		outerObj.title = item;
-		outerObj.data = contentObj[item];
-		finalArr.push(outerObj);
-	}
-
-	// Callback to return the data
-	content(finalArr);
-}
-
-
-function convertSelectResultsToArray(results, callback) {
-	var resultsArr = [];
-	for (var index in results) {
-		for (var keyVar in Object.keys(results[index])) {
-			var key = Object.keys(results[index])[keyVar];
-			var results2 = results[index];
-			var tmpObj = {label: results[index][key], value: results[index][key]};
-			resultsArr.push(tmpObj);
-		}
-	}
-
-	callback(resultsArr);
 }
