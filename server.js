@@ -11,6 +11,9 @@ var bcrypt = require('bcrypt');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 
+var testModule = require('./handlebars.js');
+testModule.hello("testName");
+
 var server = express();
 
 var port = process.env.PORT || 3000;
