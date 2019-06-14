@@ -2,22 +2,23 @@
 
 var renderer = require('./handlebars/renderer.js');
 var auth = require('./auth.js');
+var query = require('./db/queries.js');
 
 module.exports = {
 	RouteHandler: routeHandler,
 };
 
 var pageConfig = {
-	'/login': renderLogin,
-	'/register': renderRegister,
-	'/buildings': renderBuildings,
-	'/locations': renderLocations,
-	'/tools': renderTools,
-	'/contains': renderContains,// Remove this page eventually
-	'/maintainers': renderMaintainers,
-	'/locations_and_tools': renderLocationsAndTools,
-	'/buildings_and_locations': renderBuildingsAndLocations,
-	'/logout': handleLogout,
+	'^/login$': renderLogin,
+	'^/register$': renderRegister,
+	'^/buildings$': renderBuildings,
+	'^/locations$': renderLocations,
+	'^/tools$': renderTools,
+	'^/contains$': renderContains,// Remove this page eventually
+	'^/maintainers$': renderMaintainers,
+	'^/locations_and_tools$': renderLocationsAndTools,
+	'^/buildings_and_locations$': renderBuildingsAndLocations,
+	'^/logout$': handleLogout,
 };
 
 /* ********************
@@ -68,7 +69,7 @@ function renderBuildings(request, response) {
 		response.redirect('/login');
 		return;
 	}
-	server.getBuildingsData(function(titles, buildingsData) {
+	query.Buildings(function(titles, buildingsData) {
 		var cbData = {};
 		var managerData = {}
 
@@ -87,7 +88,7 @@ function renderLocations(request, response) {
 		response.redirect('/login');
 		return;
 	}
-	server.getLocationsData(function(titles, locationsData) {
+	query.Locations(function(titles, locationsData) {
 		renderer.RenderContentPage("locations", titles, locationsData, request, response);
 	});
 };
@@ -103,7 +104,7 @@ function renderTools(request, response) {
 		response.redirect('/login');
 		return;
 	}
-	getToolsData(function(titles, toolsData) {
+	query.Tools(function(titles, toolsData) {
 		renderer.RenderContentPage("tools", titles, toolsData, request, response);
 	});
 };
@@ -119,7 +120,7 @@ function renderContains(request, response) {
 		response.redirect('/login');
 		return;
 	}
-	getContainsData(function(titles, containsData) {
+	query.Contains(function(titles, containsData) {
 		renderer.RenderContentPage("contains", titles, containsData, request, response);
 	});
 };
@@ -135,7 +136,7 @@ function renderMaintainers(request, response) {
 		response.redirect('/login');
 		return;
 	}
-	getMaintainerData(function(titles, maintainersData) {
+	query.Maintainers(function(titles, maintainersData) {
 		renderer.RenderContentPage("maintainers", titles, maintainersData, request, response);
 	});
 };
@@ -167,7 +168,7 @@ function renderLocationsAndTools(request, response) {
 		response.redirect('/login');
 		return;
 	}
-	server.getLocationsAndToolsData(function(accordionData) {
+	query.LocationsAndTools(function(accordionData) {
 		renderer.RenderAccordionPage("locations_and_tools", accordionData, request, response);
 	});
 };
@@ -177,12 +178,13 @@ function renderLocationsAndTools(request, response) {
 ******************** */
 function renderBuildingsAndLocations(request, response) {
 	console.log("Rendering buildings_and_locations page");
+
 	var authorization = auth.CheckAuth(request);
 	if (!authorization) {
 		response.redirect('/login');
 		return;
 	}
-	server.getBuildingsAndLocationsData(function(accordionData) {
+	query.BuildingsAndLocations(function(accordionData) {
 		renderer.RenderAccordionPage("buildings_and_locations", accordionData, request, response);
 	});
 };
@@ -193,10 +195,14 @@ function routeHandler(route, request, response) {
 		renderer.RenderHomePage(request, response);
 	}
 	for (var routeRegex in pageConfig) {
-		var results = route.match(routeRegex);
-		if (route.match(routeRegex) != null) {
-			console.log("MATCHED: " + routeRegex);
+		var regex = new RegExp(routeRegex, "g");
+		var results = route.match(regex);
+		console.log("RESULTS against " + regex);
+		console.log(results);
+		if (route.match(regex) != null) {
+			console.log("MATCHED: " + regex);
 			pageConfig[routeRegex](request, response);
+			return;
 		}
 	}
 };
