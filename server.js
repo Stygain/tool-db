@@ -52,32 +52,6 @@ setup.Setup();
 // Start the database connection
 db.Connect();
 
-//db.GetConnection(function(conn) {
-//	connection = conn;
-//	console.log("Connection");
-//	console.log(connection);
-//});
-
-/* ********************
- * Handle get requests for /
-******************** */
-server.get('/', function(request, response) {
-	routes.RouteHandler('/');
-	renderer.RenderHomePage(request, response);
-});
-
-/* ********************
- * Handle get requests for /login
-******************** */
-server.get('/login', function(request, response) {
-	var authorization = auth.CheckAuth(request);
-	if (authorization) {
-		response.redirect('/');
-		return;
-	}
-	renderer.RenderLoginPage(request, response);
-});
-
 /* ********************
  * Handle post requests for /login
 ******************** */
@@ -112,14 +86,6 @@ server.post('/login', function(request, response) {
 	});
 });
 
-
-/* ********************
- * Handle get requests for /register
-******************** */
-server.get('/register', function(request, response, next) {
-	renderer.RenderRegisterPage(request, response);
-});
-
 /* ********************
  * Handle post requests for /register
 ******************** */
@@ -149,24 +115,6 @@ server.post('/register', function(request, response) {
 			    response.status(200).end();
 			}
 		});
-	});
-});
-
-/* ********************
- * Handle get requests for /buildings
-******************** */
-server.get('/buildings', function(request, response, next) {
-	console.log("Rendering buildings page");
-	var authorization = auth.CheckAuth(request);
-	if (!authorization) {
-		response.redirect('/login');
-		return;
-	}
-	getBuildingsData(function(titles, buildingsData) {
-		var cbData = {};
-		var managerData = {}
-
-		renderer.RenderContentPage("buildings", titles, buildingsData, request, response);
 	});
 });
 
@@ -212,21 +160,6 @@ server.post('/buildingDelete', function(request, response) {
 });
 
 /* ********************
- * Handle get requests for /locations
-******************** */
-server.get('/locations', function(request, response, next) {
-	console.log("Rendering locations page");
-	var authorization = auth.CheckAuth(request);
-	if (!authorization) {
-		response.redirect('/login');
-		return;
-	}
-	getLocationsData(function(titles, locationsData) {
-		renderer.RenderContentPage("locations", titles, locationsData, request, response);
-	});
-});
-
-/* ********************
  * Handle post requests for /locations
 ******************** */
 server.post('/locations', function(request, response) {
@@ -261,22 +194,6 @@ server.post('/locationDelete', function(request, response) {
 		} else {
 			response.status(200).end();
 		}
-	});
-});
-
-
-/* ********************
- * Handle get requests for /tools
-******************** */
-server.get('/tools', function(request, response, next) {
-	console.log("Rendering tools page");
-	var authorization = auth.CheckAuth(request);
-	if (!authorization) {
-		response.redirect('/login');
-		return;
-	}
-	getToolsData(function(titles, toolsData) {
-		renderer.RenderContentPage("tools", titles, toolsData, request, response);
 	});
 });
 
@@ -329,21 +246,6 @@ server.post('/toolDelete', function(request, response) {
 });
 
 /* ********************
- * Handle get requests for /contains
- ******************** */
-server.get('/contains', function(request, response, next) {
-	console.log("Rendering contains page");
-	var authorization = auth.CheckAuth(request);
-	if (!authorization) {
-		response.redirect('/login');
-		return;
-	}
-	getContainsData(function(titles, containsData) {
-		renderer.RenderContentPage("contains", titles, containsData, request, response);
-	});
-});
-
-/* ********************
  * Handle post requests for /contains
  ******************** */
 server.post('/contains', function(request, response) {
@@ -383,21 +285,6 @@ server.post('/containsDelete', function(request, response) {
 });
 
 /* ********************
- * Handle get requests for /maintainers
-******************** */
-server.get('/maintainers', function(request, response, next) {
-	console.log("Rendering maintainers page");
-	var authorization = auth.CheckAuth(request);
-	if (!authorization) {
-		response.redirect('/login');
-		return;
-	}
-	getMaintainerData(function(titles, maintainersData) {
-		renderer.RenderContentPage("maintainers", titles, maintainersData, request, response);
-	});
-});
-
-/* ********************
  * Handle post requests for /maintainers
 ******************** */
 server.post('/maintainers', function(request, response) {
@@ -433,51 +320,6 @@ server.post('/maintainerDelete', function(request, response) {
 		} else {
 			response.status(200).end();
 		}
-	});
-});
-
-/* ********************
- * Handle get requests for /logout
-******************** */
-server.get('/logout', function(request, response, next) {
-	console.log("Rendering logout page");
-	var authorization = auth.CheckAuth(request);
-	if (!authorization) {
-		response.redirect('/login');
-		return;
-	}
-	// Remove the cookie
-	response.clearCookie('site_auth');
-	response.redirect('/');
-});
-
-/* ********************
- * Handle get requests for 
-******************** */
-server.get('/locations_and_tools', function(request, response, next) {
-	console.log("Rendering locations_and_tools page");
-	var authorization = auth.CheckAuth(request);
-	if (!authorization) {
-		response.redirect('/login');
-		return;
-	}
-	getLocationsAndToolsData(function(accordionData) {
-		renderer.RenderAccordionPage("locations_and_tools", accordionData, request, response);
-	});
-});
-
-/* ********************
- * Handle get requests for 
-******************** */
-server.get('/buildings_and_locations', function(request, response, next) {
-	console.log("Rendering buildings_and_locations page");
-	var authorization = auth.CheckAuth(request);
-	if (!authorization) {
-		response.redirect('/login');
-		return;
-	}
-	getBuildingsAndLocationsData(function(accordionData) {
-		renderer.RenderAccordionPage("buildings_and_locations", accordionData, request, response);
 	});
 });
 
@@ -543,12 +385,21 @@ server.get('/assets/*', function(request, response, next) {
 	serveStaticFiles(request, response);
 });
 
-/* ********************
- * Handle any other requests with the 404 page
-******************** */
 server.get('*', function(request, response) {
-	renderer.Render404Page(request, response);
+	//console.log("REQUEST");
+	//console.log(request);
+	//console.log("DELIM");
+	//console.log(request.url);
+
+	routes.RouteHandler(request.url, request, response);
 });
+
+///* ********************
+// * Handle any other requests with the 404 page
+//******************** */
+//server.get('*', function(request, response) {
+//	renderer.Render404Page(request, response);
+//});
 
 /* ********************
  * Query the DB to get the
