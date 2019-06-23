@@ -7,7 +7,7 @@ var exphbs = require('express-handlebars');
 var express = require('express');
 //var hbs = require('handlebars');
 var sql = require('mysql');
-var bcrypt = require('bcrypt');
+//var bcrypt = require('bcrypt');
 var cookieParser = require('cookie-parser');
 //var session = require('express-session');
 
@@ -22,8 +22,6 @@ var routes = require('./routes.js');
 var server = express();
 
 var port = process.env.PORT || 3000;
-
-const saltRounds = 10;
 
 /* ********************
  * Server config

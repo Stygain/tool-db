@@ -1,11 +1,15 @@
 // Configuration of all the server routes
 
 var sql = require('mysql');
+var crypto = require('crypto');
+var bcrypt = require('bcrypt');
 
 var renderer = require('./handlebars/renderer.js');
 var auth = require('./auth.js');
 var db = require('./db/db.js');
 var query = require('./db/queries.js');
+
+const saltRounds = 10;
 
 module.exports = {
 	GET: getRouteHandler,
@@ -18,7 +22,6 @@ var getConfig = {
 	'^/buildings$': renderBuildings,
 	'^/locations$': renderLocations,
 	'^/tools$': renderTools,
-	'^/contains$': renderContains,// Remove this page eventually
 	'^/maintainers$': renderMaintainers,
 	'^/locations_and_tools$': renderLocationsAndTools,
 	'^/buildings_and_locations$': renderBuildingsAndLocations,
@@ -34,8 +37,6 @@ var postConfig = {
 	'^/locationDelete$': postLocationDelete,
 	'^/tools$': postTools,
 	'^/toolDelete$': postToolDelete,
-	'^/contains$': postContains,// Remove this page eventually
-	'^/containDelete$': postContainDelete,// Remove this page eventually
 	'^/maintainers$': postMaintainers,
 	'^/maintainerDelete$': postMaintainerDelete,
 };
@@ -55,12 +56,17 @@ function renderHome(request, response) {
 function renderLogin(request, response) {
 	console.log("Render Login");
 
-	var authorization = auth.CheckAuth(request);
-	if (authorization) {
-		response.redirect('/');
-		return;
-	}
-	renderer.RenderLoginPage(request, response);
+	auth.CheckAuth(request, function(authorization) {
+		console.log("Authorization");
+		console.log(authorization);
+		if (authorization) {
+			console.log("Redirecting to home");
+			response.redirect('/');
+			return;
+		}
+		renderer.RenderLoginPage(request, response);
+	});
+	
 };
 
 /* ********************
@@ -69,12 +75,13 @@ function renderLogin(request, response) {
 function renderRegister(request, response) {
 	console.log("Render Register");
 
-	var authorization = auth.CheckAuth(request);
-	if (authorization) {
-		response.redirect('/');
-		return;
-	}
-	renderer.RenderRegister(request, response);
+	auth.CheckAuth(request, function(authorization) {
+		if (authorization) {
+			response.redirect('/');
+			return;
+		}
+		renderer.RenderRegister(request, response);
+	});
 };
 
 /* ********************
@@ -83,16 +90,17 @@ function renderRegister(request, response) {
 function renderBuildings(request, response) {
 	console.log("Rendering buildings page");
 
-	var authorization = auth.CheckAuth(request);
-	if (!authorization) {
-		response.redirect('/login');
-		return;
-	}
-	query.Buildings(function(titles, buildingsData) {
-		var cbData = {};
-		var managerData = {}
+	auth.CheckAuth(request, function(authorization) {
+		if (!authorization) {
+			response.redirect('/login');
+			return;
+		}
+		query.Buildings(request.session.user, function(titles, buildingsData) {
+			var cbData = {};
+			var managerData = {}
 
-		renderer.RenderContentPage("buildings", titles, buildingsData, request, response);
+			renderer.RenderContentPage("buildings", titles, buildingsData, request, response);
+		});
 	});
 };
 
@@ -102,13 +110,14 @@ function renderBuildings(request, response) {
 function renderLocations(request, response) {
 	console.log("Rendering locations page");
 
-	var authorization = auth.CheckAuth(request);
-	if (!authorization) {
-		response.redirect('/login');
-		return;
-	}
-	query.Locations(function(titles, locationsData) {
-		renderer.RenderContentPage("locations", titles, locationsData, request, response);
+	auth.CheckAuth(request, function(authorization) {
+		if (!authorization) {
+			response.redirect('/login');
+			return;
+		}
+		query.Locations(request.session.user, function(titles, locationsData) {
+			renderer.RenderContentPage("locations", titles, locationsData, request, response);
+		});
 	});
 };
 
@@ -118,31 +127,33 @@ function renderLocations(request, response) {
 function renderTools(request, response) {
 	console.log("Rendering tools page");
 
-	var authorization = auth.CheckAuth(request);
-	if (!authorization) {
-		response.redirect('/login');
-		return;
-	}
-	query.Tools(function(titles, toolsData) {
-		renderer.RenderContentPage("tools", titles, toolsData, request, response);
+	auth.CheckAuth(request, function(authorization) {
+		if (!authorization) {
+			response.redirect('/login');
+			return;
+		}
+		query.Tools(request.session.user, function(titles, toolsData) {
+			renderer.RenderContentPage("tools", titles, toolsData, request, response);
+		});
 	});
 };
 
-/* ********************
- * Handle get requests for /contains
- ******************** */
-function renderContains(request, response) {
-	console.log("Rendering contains page");
-
-	var authorization = auth.CheckAuth(request);
-	if (!authorization) {
-		response.redirect('/login');
-		return;
-	}
-	query.Contains(function(titles, containsData) {
-		renderer.RenderContentPage("contains", titles, containsData, request, response);
-	});
-};
+///* ********************
+// * Handle get requests for /contains
+// ******************** */
+//function renderContains(request, response) {
+//	console.log("Rendering contains page");
+//
+//	auth.CheckAuth(request, function(authorization) {
+//		if (!authorization) {
+//			response.redirect('/login');
+//			return;
+//		}
+//		query.Contains(function(titles, containsData) {
+//			renderer.RenderContentPage("contains", titles, containsData, request, response);
+//		});
+//	});
+//};
 
 /* ********************
  * Handle get requests for /maintainers
@@ -150,13 +161,14 @@ function renderContains(request, response) {
 function renderMaintainers(request, response) {
 	console.log("Rendering maintainers page");
 
-	var authorization = auth.CheckAuth(request);
-	if (!authorization) {
-		response.redirect('/login');
-		return;
-	}
-	query.Maintainers(function(titles, maintainersData) {
-		renderer.RenderContentPage("maintainers", titles, maintainersData, request, response);
+	auth.CheckAuth(request, function(authorization) {
+		if (!authorization) {
+			response.redirect('/login');
+			return;
+		}
+		query.Maintainers(request.session.user, function(titles, maintainersData) {
+			renderer.RenderContentPage("maintainers", titles, maintainersData, request, response);
+		});
 	});
 };
 
@@ -166,14 +178,16 @@ function renderMaintainers(request, response) {
 function handleLogout(request, response) {
 	console.log("Rendering logout page");
 
-	var authorization = auth.CheckAuth(request);
-	if (!authorization) {
-		response.redirect('/login');
-		return;
-	}
-	// Remove the cookie
-	response.clearCookie('site_auth');
-	response.redirect('/');
+	auth.CheckAuth(request, function(authorization) {
+		if (!authorization) {
+			response.redirect('/login');
+			return;
+		}
+		// Remove the cookie
+		response.clearCookie('site_auth');
+		response.clearCookie('auth');
+		response.redirect('/');
+	});
 };
 
 /* ********************
@@ -182,13 +196,14 @@ function handleLogout(request, response) {
 function renderLocationsAndTools(request, response) {
 	console.log("Rendering locations_and_tools page");
 
-	var authorization = auth.CheckAuth(request);
-	if (!authorization) {
-		response.redirect('/login');
-		return;
-	}
-	query.LocationsAndTools(function(accordionData) {
-		renderer.RenderAccordionPage("locations_and_tools", accordionData, request, response);
+	auth.CheckAuth(request, function(authorization) {
+		if (!authorization) {
+			response.redirect('/login');
+			return;
+		}
+		query.LocationsAndTools(request.session.user, function(accordionData) {
+			renderer.RenderAccordionPage("locations_and_tools", accordionData, request, response);
+		});
 	});
 };
 
@@ -198,13 +213,14 @@ function renderLocationsAndTools(request, response) {
 function renderBuildingsAndLocations(request, response) {
 	console.log("Rendering buildings_and_locations page");
 
-	var authorization = auth.CheckAuth(request);
-	if (!authorization) {
-		response.redirect('/login');
-		return;
-	}
-	query.BuildingsAndLocations(function(accordionData) {
-		renderer.RenderAccordionPage("buildings_and_locations", accordionData, request, response);
+	auth.CheckAuth(request, function(authorization) {
+		if (!authorization) {
+			response.redirect('/login');
+			return;
+		}
+		query.BuildingsAndLocations(request.session.user, function(accordionData) {
+			renderer.RenderAccordionPage("buildings_and_locations", accordionData, request, response);
+		});
 	});
 };
 
@@ -232,6 +248,9 @@ function getRouteHandler(route, request, response) {
 
 
 
+function randU32Sync() {
+	return crypto.randomBytes(4).readUInt32BE(0, true);
+}
 
 
 /* ********************
@@ -254,11 +273,20 @@ function postLogin(request, response) {
 			// If they are authorized, set a cookie
 			if (res == true) {
 				// Now figure out what value to use for the cookie
-				var cookieName = "site_auth";
-				var toHash = request.body.username + request.body.password;
+				//var cookieName = "site_auth";
+				var random = randU32Sync();
+				var toHash = request.body.username + random;
+				console.log("ToHash: " + toHash);
 				bcrypt.hash(toHash, saltRounds, function(err, hash) {
-					var cookieValue = hash;
-					response.cookie(cookieName, "somerandonstuffs", { maxAge: 900000, httpOnly: true });
+					console.log("Hash before:");
+					console.log(hash);
+					var cookieValue = Buffer.from(hash).toString('base64');
+					console.log("Setting cookie value to:");
+					console.log(cookieValue);
+					response.cookie("auth", cookieValue, { maxAge: 900000, httpOnly: true });
+					request.session.rd = random;
+					request.session.user = request.body.username;
+					console.log("Set rd to: " + request.session.rd);
 					response.status(200).end();
 				});
 			} else {
@@ -427,44 +455,44 @@ function postToolDelete(request, response) {
 	});
 };
 
-/* ********************
- * Handle post requests for /contains
- ******************** */
-function postContains(request, response) {
-	console.log("Contains Data: ");
-	console.log(request.body);
+///* ********************
+// * Handle post requests for /contains
+// ******************** */
+//function postContains(request, response) {
+//	console.log("Contains Data: ");
+//	console.log(request.body);
+//
+//	var queryData = {ID: request.body.lid, TID: request.body.tid};
+//	var query = sql.format('INSERT INTO Contains SET ?', queryData);
+//	db.Query(query, function(status, results) {
+//		if (!status) {
+//			console.log("ERROR: " + results);
+//			response.status(401).end();
+//			return;
+//		} else {
+//			response.status(200).end();
+//		}
+//	});
+//};
 
-	var queryData = {ID: request.body.lid, TID: request.body.tid};
-	var query = sql.format('INSERT INTO Contains SET ?', queryData);
-	db.Query(query, function(status, results) {
-		if (!status) {
-			console.log("ERROR: " + results);
-			response.status(401).end();
-			return;
-		} else {
-			response.status(200).end();
-		}
-	});
-};
-
-/* ********************
- * Handle post requests for /containsDelete
- ******************** */
-function postContainDelete(request, response) {
-	console.log("Contains Delete Data: ");
-	console.log(request.body);
-
-	var query = sql.format('DELETE FROM Contains WHERE TID = ? AND ID = ?', [request.body.TID, request.body.ID]);
-	db.Query(query, function(status, results) {
-		if (!status) {
-			console.log("ERROR: " + results);
-			response.status(401).end();
-			return;
-		} else {
-			response.status(200).end();
-		}
-	});
-};
+///* ********************
+// * Handle post requests for /containsDelete
+// ******************** */
+//function postContainDelete(request, response) {
+//	console.log("Contains Delete Data: ");
+//	console.log(request.body);
+//
+//	var query = sql.format('DELETE FROM Contains WHERE TID = ? AND ID = ?', [request.body.TID, request.body.ID]);
+//	db.Query(query, function(status, results) {
+//		if (!status) {
+//			console.log("ERROR: " + results);
+//			response.status(401).end();
+//			return;
+//		} else {
+//			response.status(200).end();
+//		}
+//	});
+//};
 
 /* ********************
  * Handle post requests for /maintainers
