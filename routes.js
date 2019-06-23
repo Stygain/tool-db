@@ -57,10 +57,7 @@ function renderLogin(request, response) {
 	console.log("Render Login");
 
 	auth.CheckAuth(request, function(authorization) {
-		console.log("Authorization");
-		console.log(authorization);
 		if (authorization) {
-			console.log("Redirecting to home");
 			response.redirect('/');
 			return;
 		}
