@@ -5,6 +5,7 @@ var sql = require('mysql');
 module.exports = {
 	Connect: databaseConnect,
 	GetConnection: getConnection,
+	SetConnection: setConnection,
 	Query: query,
 };
 
@@ -41,6 +42,13 @@ function databaseConnect() {
 ******************** */
 function getConnection(content) {
 	content(connection);
+};
+
+/* ********************
+ * Database connection getter
+******************** */
+function setConnection(newConnection) {
+	connection = newConnection;
 };
 
 /* ********************

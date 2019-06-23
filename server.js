@@ -47,8 +47,8 @@ server.listen(port, function() {
 
 setup.Setup();
 
-// Start the database connection
-db.Connect();
+//// Start the database connection
+//db.Connect();
 
 /* ********************
  * Serve any sort of file the user requests
