@@ -137,57 +137,48 @@ function renderContentPage(page, titles, data, request, response) {
 	console.log("Rendering content page: " + page);
 	auth.CheckAuth(request, function(authorization) {
 		if (page == "buildings") {
-			var query = sql.format('SELECT email FROM User WHERE 1');
-			db.Query(query, function(status, results) {
-				if (!status) {
-					console.log("ERROR: " + results);
-					return;
-				}
-				dbParser.ConvertSelectResultsToArray(results, function(cbDataArray) {
-					var templateArgs = {
-						title: "Buildings",
-						nav_title: "Tools DB",
-						loggedIn: authorization,
-						active: "buildings",
-						loadCss: [
-							{filename: "index.css"},
-							{filename: "contentPage.css"},
-							{filename: "modal.css"},
-							{filename: "status.css"},
-						],
-						loadJs: [
-							{filename: "index.js"},
-							{filename: "modal.js"},
-							{filename: "content.js"},
-						],
-						header: titles,
-						item: data,
-						modalHeader: "Add New Building",
-						modalType: "buildings",
-						modalContentRow: [
-							{
-								inputType: "text",
-								placeholder: "Address",
-								name: "address",
-								required: true,
-							},
-							{
-								inputType: "text",
-								placeholder: "Name",
-								name: "name",
-								required: true,
-							},
-							{
-								inputType: "combobox",
-								label: "Manager",
-								name: "manager",
-								cbData: cbDataArray,
-							},
-						],
-					};
-					response.render('contentPage', templateArgs);
-				});
-			});
+			var templateArgs = {
+				title: "Buildings",
+				nav_title: "Tools DB",
+				loggedIn: authorization,
+				active: "buildings",
+				loadCss: [
+					{filename: "index.css"},
+					{filename: "contentPage.css"},
+					{filename: "modal.css"},
+					{filename: "status.css"},
+				],
+				loadJs: [
+					{filename: "index.js"},
+					{filename: "modal.js"},
+					{filename: "content.js"},
+				],
+				header: titles,
+				item: data,
+				modalHeader: "Add New Building",
+				modalType: "buildings",
+				modalContentRow: [
+					{
+						inputType: "text",
+						placeholder: "Address",
+						name: "address",
+						required: true,
+					},
+					{
+						inputType: "text",
+						placeholder: "Name",
+						name: "name",
+						required: true,
+					},
+					{
+						inputType: "combobox",
+						label: "Manager",
+						name: "manager",
+						cbData: [{value: request.session.user, label: request.session.user}],
+					},
+				],
+			};
+			response.render('contentPage', templateArgs);
 		} else if (page == "locations") {
 			var query = sql.format('SELECT address FROM Building WHERE 1');
 			db.Query(query, function(status, results) {
