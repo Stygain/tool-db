@@ -14,10 +14,10 @@ var connection;
 /* ********************
  * Database continual-connection
 ******************** */
-function databaseConnect() {
+function databaseConnect(dbURL) {
 	console.log("Connecting to database.");
 
-	connection = sql.createConnection("mysql://cs340_bartonad:potato@classmysql.engr.oregonstate.edu/cs340_bartonad");
+	connection = sql.createConnection(dbURL);
 
 	connection.connect(function(err) {
 		if (err) {

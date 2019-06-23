@@ -12,13 +12,21 @@ module.exports = {
 ******************** */
 function parseOutTitlesAndContent(results, content) {
 	var titleArr = [];
+	var contentArr = [];
+
+	console.log("TITLES AND CONTENT");
+	console.log(results);
+	if (results === undefined || results.length == 0) {
+		console.log("DOING EMPTY");
+		content(titleArr, contentArr);
+	}
+
 	for (var key in Object.keys(results[0])) {
 		var tmpObj = {title: Object.keys(results[0])[key]};
 		titleArr.push(tmpObj);
 	}
 
 	// Generate the content
-	var contentArr = [];
 	for (var index in results) {
 		var tmpArr = [];
 		for (var jndex in results[index]) {

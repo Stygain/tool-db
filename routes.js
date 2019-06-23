@@ -77,7 +77,7 @@ function renderRegister(request, response) {
 			response.redirect('/');
 			return;
 		}
-		renderer.RenderRegister(request, response);
+		renderer.RenderRegisterPage(request, response);
 	});
 };
 
