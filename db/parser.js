@@ -14,11 +14,9 @@ function parseOutTitlesAndContent(results, content) {
 	var titleArr = [];
 	var contentArr = [];
 
-	console.log("TITLES AND CONTENT");
-	console.log(results);
 	if (results === undefined || results.length == 0) {
-		console.log("DOING EMPTY");
 		content(titleArr, contentArr);
+		return;
 	}
 
 	for (var key in Object.keys(results[0])) {
@@ -49,6 +47,7 @@ function parseOutContentLocationsAndTools(results, content) {
 	var contentObj = {};
 	var currObj = {};
 	var currArr = [];
+
 	for (var index in results) {
 		var contentStr = '';
 		for (var jndex in results[index]) {
@@ -97,6 +96,7 @@ function parseOutContentBuildingsAndLocations(results, content) {
 	var contentObj = {};
 	var currObj = {};
 	var currArr = [];
+
 	for (var index in results) {
 		var contentStr = '';
 		for (var jndex in results[index]) {
