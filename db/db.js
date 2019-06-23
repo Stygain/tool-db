@@ -29,7 +29,7 @@ function databaseConnect(dbURL) {
 		connection.on("error", function(err) {
 			console.log("Database error: " + err);
 			if (err.code === "PROTOCOL_CONNECTION_LOST") {
-				databaseConnect();
+				databaseConnect(dbURL);
 			} else {
 				throw err;
 			}
