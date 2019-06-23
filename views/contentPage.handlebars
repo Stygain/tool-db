@@ -5,8 +5,10 @@
 		<tr>
 			{{#each header}}
 				{{> row_header}}
-				<th>Delete</th>
 			{{/each}}
+			{{#ifCond header 'length' 0}}
+				<th>Delete</th>
+			{{/ifCond}}
 		</tr>
 		{{#each item}}
 			{{> row}}
