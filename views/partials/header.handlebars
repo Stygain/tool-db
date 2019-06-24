@@ -40,14 +40,29 @@
 							<li><a href="/maintainers">Maintainers</a></li>
 						{{/ifCond}}
 						{{#ifCond active '==' "locations_and_tools"}}
-							<li class="active"><a href="/locations_and_tools">Locations and Tools</a></li>
+							<li class="dropdown active"><a href="#" class="dropdown-toggle" id="dropdown-summary" data-toggle="dropdown">Summary Views <b class="caret"></b></a>
 						{{else}}
-							<li><a href="/locations_and_tools">Locations and Tools</a></li>
+							{{#ifCond active '==' "buildings_and_locations"}}
+								<li class="dropdown active"><a href="#" class="dropdown-toggle" id="dropdown-summary" data-toggle="dropdown">Summary Views <b class="caret"></b></a>
+							{{else}}
+								<li class="dropdown"><a href="#" class="dropdown-toggle" id="dropdown-summary" data-toggle="dropdown">Summary Views <b class="caret"></b></a>
+									<ul class="dropdown-menu">
+										<li><a href="/buildings_and_locations">Buildings and Locations</a></li>
+										<li><a href="/locations_and_tools">Locations and Tools</a></li>
+									</ul>
+							{{/ifCond}}
+						{{/ifCond}}
+						{{#ifCond active '==' "locations_and_tools"}}
+									<ul class="dropdown-menu">
+										<li><a href="/buildings_and_locations">Buildings and Locations</a></li>
+										<li class="active"><a href="/locations_and_tools">Locations and Tools</a></li>
+									</ul>
 						{{/ifCond}}
 						{{#ifCond active '==' "buildings_and_locations"}}
-							<li class="active"><a href="/buildings_and_locations">Buildings and Locations</a></li>
-						{{else}}
-							<li><a href="/buildings_and_locations">Buildings and Locations</a></li>
+								<ul class="dropdown-menu">
+									<li class="active"><a href="/buildings_and_locations">Buildings and Locations</a></li>
+									<li><a href="/locations_and_tools">Locations and Tools</a></li>
+								</ul>
 						{{/ifCond}}
 						{{#ifCond active '==' "logout"}}
 							<li class="active"><a href="/logout">Logout</a></li>
